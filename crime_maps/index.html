@@ -23,6 +23,12 @@ body {
     height: 100vh;
     border: none;
     transition: filter 0.3s ease, width 0.3s ease;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.map-frame.loading {
+    opacity: 0;
 }
 
 .comparison-mode .map-frame {
@@ -31,9 +37,9 @@ body {
 
 .comparison-divider {
     position: absolute;
-    width: 4px;
+    width: 20px; /* Increase width for larger clickable area */
     height: 100%;
-    background-color: #2196F3;
+    background-color: transparent; /* Make background transparent */
     left: 50%;
     top: 0;
     transform: translateX(-50%);
@@ -43,7 +49,20 @@ body {
 }
 
 .comparison-divider::after {
-    content: '⋮';
+    content: none; /* Remove existing content */
+}
+
+.comparison-divider .divider-line {
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    background-color: #2196F3;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.comparison-divider .divider-handle {
     position: absolute;
     width: 40px;
     height: 40px;
@@ -322,8 +341,222 @@ select:disabled {
         flex: 1;
     }
 }
-</style>
 
+/* Styles for horizontal split */
+.comparison-mode.horizontal .map-frame {
+    width: 100%;
+    height: 50%;
+}
+
+.comparison-divider.horizontal {
+    width: 100%;
+    height: 20px; /* Increased height for easier dragging */
+    cursor: ns-resize;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+.comparison-divider.horizontal .divider-line {
+    width: 100%;
+    height: 4px;
+    background-color: #2196F3;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+.comparison-divider.horizontal .divider-handle {
+    width: 40px;
+    height: 40px;
+    background-color: #2196F3;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+/* Modify the map container for horizontal split */
+.map-container.horizontal {
+    flex-direction: column;
+}
+
+/* Update horizontal split styles */
+.comparison-mode.horizontal .map-frame {
+    width: 100% !important; /* Override inline styles */
+    height: 50%;
+}
+
+.comparison-mode.horizontal #rightFrame {
+    position: relative;
+    top: 0;
+}
+
+.comparison-divider.horizontal {
+    width: 100%;
+    height: 20px;
+    left: 0;
+    transform: none;
+}
+
+.comparison-divider.horizontal .divider-line {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Add new legend styles */
+.legend-container {
+    position: fixed;
+    bottom: 120px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 12px;
+    z-index: 999; /* Lower z-index */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    max-width: 280px;
+    transition: transform 0.3s ease;
+}
+
+.legend-container.hidden {
+    transform: translateX(-120%);
+}
+
+.legend-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.legend-scale {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.legend-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.legend-label {
+    font-size: 12px;
+    color: #666;
+}
+
+.legend-circle.high {
+    background: linear-gradient(45deg, #ff0000, #d32f2f);
+}
+
+.legend-circle.medium {
+    background: linear-gradient(45deg, #ffa500, #f57c00);
+}
+
+.legend-circle.low {
+    background: linear-gradient(45deg, #ffeb3b, #fdd835);
+}
+
+.legend-circle.minimal {
+    background: linear-gradient(45deg, #aed581, #c5e1a5);
+}
+
+.legend-circle.na {
+    background: linear-gradient(45deg, #bdbdbd, #9e9e9e);
+}
+
+.legend-note {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+#closeLegend {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    color: #666;
+}
+
+#closeLegend:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#showLegend {
+    position: fixed;
+    bottom: 120px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border-radius: 50%;
+    z-index: 999;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    border: none;
+    display: none;
+    color: #666;
+}
+
+#showLegend.visible {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .legend-container {
+        bottom: auto;
+        top: 80px;
+    }
+    
+    #showLegend {
+        bottom: auto;
+        top: 80px;
+    }
+}
+
+/* Add these new styles */
+.year-selector {
+    display: none;
+}
+
+.year-selector.active {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.year-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.year-select-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+</style>
 </head>
 <body>
     <div id="title">
@@ -340,57 +573,103 @@ select:disabled {
 
     <div class="map-container">
         <iframe id="leftFrame" class="map-frame" src="map_2008.html"></iframe>
-        <div class="comparison-divider"></div>
+        <div class="comparison-divider">
+            <div class="divider-line"></div>
+            <div class="divider-handle">⋮</div>
+        </div>
         <iframe id="rightFrame" class="map-frame" src="map_2008.html"></iframe>
     </div>
     
+    <div class="legend-container">
+        <button id="closeLegend">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="legend-title">Crime Rate per 100,000 residents</div>
+        <div class="legend-scale">
+            <div class="legend-circle high"></div>
+            <div class="legend-label">High (>8,000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle medium"></div>
+            <div class="legend-label">Medium (4,000-8,000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle low"></div>
+            <div class="legend-label">Low (1,000-4,000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle minimal"></div>
+            <div class="legend-label">Minimal (<1,000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle na"></div>
+            <div class="legend-label">No Data Available</div>
+        </div>
+        <div class="legend-note">Circle size indicates relative crime volume. Data sourced from official crime statistics.</div>
+    </div>
+
+    <button id="showLegend">
+        <i class="fas fa-chart-pie"></i>
+    </button>
+
     <div id="controlPanel" class="closed">
         <button id="toggleButton" class="closed">
             <i class="fas fa-chevron-up"></i>
             Time Controls
         </button>
         <div id="controlContent">
-            <button id="compareButton">
-                <i class="fas fa-clone"></i>
-                Compare Years
-            </button>
             <div class="controls-group">
-                <strong>Left Year:</strong>
-                <select id="leftYearSelect" onchange="changeYear('left', this.value)">
-                    <option value="2008">2008</option>
-                    <option value="2009">2009</option>
-                    <option value="2010">2010</option>
-                    <option value="2011">2011</option>
-                    <option value="2012">2012</option>
-                    <option value="2013">2013</option>
-                    <option value="2014">2014</option>
-                    <option value="2015">2015</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                </select>
-                <strong>Right Year:</strong>
-                <select id="rightYearSelect" onchange="changeYear('right', this.value)" disabled>
-                    <option value="2008">2008</option>
-                    <option value="2009">2009</option>
-                    <option value="2010">2010</option>
-                    <option value="2011">2011</option>
-                    <option value="2012">2012</option>
-                    <option value="2013">2013</option>
-                    <option value="2014">2014</option>
-                    <option value="2015">2015</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                    <option value="2018">2018</option>
-                    <option value="2019">2019</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                </select>
+                <button id="compareButton">
+                    <i class="fas fa-clone"></i>
+                    Compare Years
+                </button>
+                <button id="splitOrientationButton" class="control-button" style="display: none;">
+                    <i class="fas fa-arrows-alt-h"></i> Vertical Split
+                </button>
+            </div>
+            <div class="controls-group year-selector active" id="leftYearGroup">
+                <div class="year-select-group">
+                    <span class="year-label">Left Year:</span>
+                    <select id="leftYearSelect" onchange="changeYear('left', this.value)">
+                        <option value="2008">2008</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls-group year-selector" id="rightYearGroup">
+                <div class="year-select-group">
+                    <span class="year-label">Right Year:</span>
+                    <select id="rightYearSelect" onchange="changeYear('right', this.value)" disabled>
+                        <option value="2008">2008</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
             </div>
             <div class="controls-group">
                 <button id="playBtn" class="control-button" onclick="togglePlay()">
@@ -454,22 +733,60 @@ toggleButton.addEventListener('click', () => {
 // Comparison mode toggle
 compareButton.addEventListener('click', toggleComparisonMode);
 
+// Variable to track split orientation
+let isHorizontalSplit = false;
+
 function toggleComparisonMode() {
     isComparisonMode = !isComparisonMode;
     mapContainer.classList.toggle('comparison-mode');
     comparisonDivider.classList.toggle('active');
     rightYearSelect.disabled = !isComparisonMode;
-    
-    // Reset frame widths when switching back to single view
+    splitOrientationButton.style.display = isComparisonMode ? 'flex' : 'none';
+    document.getElementById('rightYearGroup').classList.toggle('active', isComparisonMode);
+
+    // Reset frames when exiting comparison mode
     if (!isComparisonMode) {
         leftFrame.style.width = '100%';
+        leftFrame.style.height = '100vh';
         rightFrame.style.width = '100%';
+        rightFrame.style.height = '100vh';
         comparisonDivider.style.left = '50%';
+        comparisonDivider.style.top = '50%';
+        // Reset split orientation when exiting comparison mode
+        isHorizontalSplit = false;
+        mapContainer.classList.remove('horizontal');
+        comparisonDivider.classList.remove('horizontal');
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Vertical Split';
     }
-    
-    compareButton.innerHTML = isComparisonMode ? 
+
+    compareButton.innerHTML = isComparisonMode ?
         '<i class="fas fa-compress-alt"></i> Single View' :
         '<i class="fas fa-clone"></i> Compare Years';
+}
+
+// Split orientation toggle
+const splitOrientationButton = document.getElementById('splitOrientationButton');
+splitOrientationButton.addEventListener('click', toggleSplitOrientation);
+
+function toggleSplitOrientation() {
+    isHorizontalSplit = !isHorizontalSplit;
+    mapContainer.classList.toggle('horizontal', isHorizontalSplit);
+    comparisonDivider.classList.toggle('horizontal', isHorizontalSplit);
+
+    // Reset any inline styles that might interfere
+    leftFrame.style = '';
+    rightFrame.style = '';
+    comparisonDivider.style = '';
+
+    if (isHorizontalSplit) {
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Horizontal Split';
+        comparisonDivider.style.cursor = 'ns-resize';
+        comparisonDivider.style.top = '50%';
+    } else {
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Vertical Split';
+        comparisonDivider.style.cursor = 'ew-resize';
+        comparisonDivider.style.left = '50%';
+    }
 }
 
 // Draggable divider functionality
@@ -483,15 +800,25 @@ comparisonDivider.addEventListener('mousedown', (e) => {
 
 function onDrag(e) {
     if (!isDragging) return;
-    
+
     const containerRect = mapContainer.getBoundingClientRect();
-    const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-    
-    // Limit the divider movement between 20% and 80% of the container width
-    if (percentage >= 20 && percentage <= 80) {
-        leftFrame.style.width = `${percentage}%`;
-        rightFrame.style.width = `${100 - percentage}%`;
-        comparisonDivider.style.left = `${percentage}%`;
+
+    if (isHorizontalSplit) {
+        const percentage = ((e.clientY - containerRect.top) / containerRect.height) * 100;
+        
+        if (percentage >= 20 && percentage <= 80) {
+            leftFrame.style.height = `${percentage}%`;
+            rightFrame.style.height = `${100 - percentage}%`;
+            comparisonDivider.style.top = `${percentage}%`;
+        }
+    } else {
+        const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+        
+        if (percentage >= 20 && percentage <= 80) {
+            leftFrame.style.width = `${percentage}%`;
+            rightFrame.style.width = `${100 - percentage}%`;
+            comparisonDivider.style.left = `${percentage}%`;
+        }
     }
 }
 
@@ -514,6 +841,9 @@ function resetToInitialState() {
         clearInterval(interval);
         interval = null;
     }
+    isHorizontalSplit = false;
+    mapContainer.classList.remove('horizontal');
+    comparisonDivider.classList.remove('horizontal');
 }
 
 // Add window load event listener
@@ -545,21 +875,34 @@ speedSlider.addEventListener('input', () => {
 
 // Year change functions
 function changeYear(side, year) {
-    if (side === 'left') {
-        leftFrame.src = `map_${year}.html`;
-        leftYearSelect.value = year;
-        currentYearIndex = years.indexOf(parseInt(year));
-    } else {
-        rightFrame.src = `map_${year}.html`;
-        rightYearSelect.value = year;
-    }
+    const frame = side === 'left' ? leftFrame : rightFrame;
+    
+    // Add loading class to start fade out
+    frame.classList.add('loading');
+    
+    // Wait for fade out before changing source
+    setTimeout(() => {
+        frame.src = `map_${year}.html`;
+        if (side === 'left') {
+            leftYearSelect.value = year;
+            currentYearIndex = years.indexOf(parseInt(year));
+        } else {
+            rightYearSelect.value = year;
+        }
+        
+        // Remove loading class when new map is loaded
+        frame.onload = () => {
+            setTimeout(() => {
+                frame.classList.remove('loading');
+            }, 50);
+        };
+    }, 300);
 }
 
 function nextYear() {
     currentYearIndex++;
     if (currentYearIndex >= years.length) {
-        stopYears();
-        return false;
+        currentYearIndex = 0;  // Reset to beginning instead of stopping
     }
     
     const nextYear = years[currentYearIndex];
@@ -569,27 +912,29 @@ function nextYear() {
         const prevYear = years[Math.max(0, currentYearIndex - 1)];
         changeYear('right', prevYear);
     }
-    return true;
+    return true;  // Always return true to keep playing
 }
 
 function startInterval() {
+    // Calculate transition duration plus a small buffer
+    const transitionDuration = 800; // 500ms fade out + 300ms fade in
+    
     interval = setInterval(() => {
         nextYear();
-    }, getInterval());
+    }, Math.max(getInterval(), transitionDuration));
 }
 
 function togglePlay() {
     if (!isPlaying) {
-        if (currentYearIndex >= years.length - 1) {
-            currentYearIndex = 0;
-            changeYear('left', years[0]);
-            if (isComparisonMode) {
-                changeYear('right', years[0]);
-            }
-        }
         isPlaying = true;
         updatePlayButton();
         startInterval();
+        
+        // Notify frames about playback start
+        leftFrame.contentWindow.postMessage({ type: 'playbackState', isPlaying: true }, '*');
+        if (isComparisonMode) {
+            rightFrame.contentWindow.postMessage({ type: 'playbackState', isPlaying: true }, '*');
+        }
     } else {
         pauseYears();
     }
@@ -609,6 +954,12 @@ function pauseYears() {
     }
     isPlaying = false;
     updatePlayButton();
+    
+    // Notify frames about playback stop
+    leftFrame.contentWindow.postMessage({ type: 'playbackState', isPlaying: false }, '*');
+    if (isComparisonMode) {
+        rightFrame.contentWindow.postMessage({ type: 'playbackState', isPlaying: false }, '*');
+    }
 }
 
 function stopYears() {
@@ -638,6 +989,21 @@ window.addEventListener('message', (event) => {
             zoom: event.data.zoom
         }, '*');
     }
+});
+
+// Add legend control
+const legendContainer = document.querySelector('.legend-container');
+const closeLegendBtn = document.getElementById('closeLegend');
+const showLegendBtn = document.getElementById('showLegend');
+
+closeLegendBtn.addEventListener('click', () => {
+    legendContainer.classList.add('hidden');
+    showLegendBtn.classList.add('visible');
+});
+
+showLegendBtn.addEventListener('click', () => {
+    legendContainer.classList.remove('hidden');
+    showLegendBtn.classList.remove('visible');
 });
 
 // Initialize state
