@@ -1,0 +1,661 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Crime Trends - Spain</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            :root {
+                --primary-color: #3b82f6;
+                --primary-hover: #2563eb;
+                --background-color: #f8fafc;
+                --border-color: #e2e8f0;
+                --text-color: #1e293b;
+                --shadow-color: rgba(0, 0, 0, 0.06);
+                --transition-speed: 0.3s;
+            }
+            
+            body, html { 
+                margin: 0; 
+                padding: 0; 
+                height: 100%; 
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background-color: var(--background-color);
+                color: var(--text-color);
+            }
+            
+            .container { 
+                width: 100%; 
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                padding: 24px; 
+                box-sizing: border-box; 
+                gap: 24px;
+                max-width: 2560px;
+                margin: 0 auto;
+            }
+            
+            .controls { 
+                background: white; 
+                padding: 24px; 
+                border-radius: 16px; 
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .controls:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .controls-row {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+            
+            .view-controls {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .content {
+                flex: 1;
+                min-height: 0;
+                overflow: auto;
+                padding-right: 20px;
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-color) var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .content::-webkit-scrollbar-track {
+                background: var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 4px;
+            }
+            
+            .category-section {
+                background: white;
+                border-radius: 16px;
+                padding: 32px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .category-section:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .category-title {
+                font-size: 1.75rem;
+                font-weight: 600;
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                border-bottom: 2px solid var(--border-color);
+                color: var(--text-color);
+            }
+            
+            .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+                gap: 32px;
+            }
+            
+            .chart-wrapper { 
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                height: 600px;
+                position: relative;
+                transition: all var(--transition-speed);
+            }
+            
+            .chart-wrapper:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .chart-container {
+                position: absolute;
+                top: 24px;
+                left: 24px;
+                right: 24px;
+                bottom: 24px;
+            }
+            
+            select { 
+                padding: 10px 16px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                font-size: 15px;
+                background: white;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                color: var(--text-color);
+                min-width: 160px;
+            }
+            
+            select:hover {
+                border-color: var(--primary-color);
+            }
+            
+            select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            
+            .radio-group {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .radio-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 15px;
+                transition: all var(--transition-speed);
+            }
+            
+            .radio-label:hover {
+                color: var(--primary-color);
+            }
+            
+            .category-buttons { 
+                display: flex; 
+                gap: 16px; 
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            
+            button { 
+                padding: 10px 20px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                background: white;
+                color: var(--text-color);
+                font-size: 15px;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                font-weight: 500;
+            }
+            
+            button:hover {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            button.active { 
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            @media (min-width: 2000px) {
+                .charts-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+                
+                .chart-wrapper {
+                    height: 600px;
+                }
+            }
+            
+            @media (max-width: 1400px) {
+                .charts-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            
+            @media (max-width: 1200px) {
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .container {
+                    padding: 16px;
+                }
+                
+                .controls {
+                    padding: 20px;
+                }
+                
+                .chart-wrapper {
+                    height: 400px;
+                }
+                
+                .category-title {
+                    font-size: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="controls">
+                <div class="controls-row">
+                    <select id="chartType" aria-label="Chart Type">
+                        <option value="lines+markers">Line Chart</option>
+                        <option value="bar">Bar Chart</option>
+                    </select>
+                    
+                    <div class="view-controls">
+                        <div class="radio-group" role="radiogroup" aria-label="View Type">
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="category" checked>
+                                Category View
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="individual">
+                                Individual Crimes
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-buttons" id="categoryButtons" role="toolbar" aria-label="Crime Categories"></div>
+            </div>
+            
+            <div class="content">
+                <div id="categoryView">
+                    <div class="chart-wrapper">
+                        <div id="mainChart" class="chart-container"></div>
+                    </div>
+                </div>
+                
+                <div id="individualView" style="display: none;">
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Initialize data and state
+            const data = [{"year": 2008, "Sexual exploitation": null, "Child pornography": null, "Intentional homicide": 0.89, "Acts against computer systems": null, "Sexual assault": 18.5, "Burglary": 382.67, "Bribery": null, "Robbery": 156.39, "Attempted intentional homicide": 1.94, "Theft": 520.1, "Unlawful acts involving controlled drugs or precursors": 31.89, "Burglary of private residential premises": 205.65, "Participation in an organized criminal group": null, "Money laundering": null, "Sexual violence": 23.84, "Serious assault": 159.41, "Theft of a motorized vehicle or parts thereof": 146.96, "Rape": 5.34, "Corruption": null, "Kidnapping": 0.52, "Fraud": null}, {"year": 2009, "Burglary": 414.91, "Theft": 470.7, "Burglary of private residential premises": 211.62, "Child pornography": null, "Participation in an organized criminal group": null, "Sexual assault": 16.59, "Money laundering": null, "Unlawful acts involving controlled drugs or precursors": 31.02, "Attempted intentional homicide": 1.8, "Acts against computer systems": null, "Robbery": 140.92, "Theft of a motorized vehicle or parts thereof": 111.84, "Intentional homicide": 0.89, "Serious assault": 174.98, "Sexual violence": 21.03, "Corruption": null, "Rape": 4.44, "Fraud": null, "Kidnapping": 0.37, "Sexual exploitation": null, "Bribery": null}, {"year": 2010, "Burglary": 431.07, "Money laundering": null, "Theft of a motorized vehicle or parts thereof": 114.33, "Fraud": null, "Rape": 3.39, "Kidnapping": 0.27, "Sexual violence": 21.41, "Serious assault": 53.94, "Participation in an organized criminal group": null, "Acts against computer systems": null, "Bribery": null, "Sexual assault": 18.02, "Attempted intentional homicide": 1.65, "Unlawful acts involving controlled drugs or precursors": 30.96, "Burglary of private residential premises": 237.12, "Theft": 311.1, "Intentional homicide": 0.86, "Corruption": null, "Robbery": 181.58, "Child pornography": null, "Sexual exploitation": null}, {"year": 2011, "Unlawful acts involving controlled drugs or precursors": 32.61, "Acts against computer systems": null, "Intentional homicide": 0.82, "Child pornography": null, "Robbery": 187.97, "Serious assault": 39.19, "Sexual violence": 21.2, "Fraud": null, "Theft of a motorized vehicle or parts thereof": 102.13, "Rape": 3.24, "Corruption": null, "Kidnapping": 0.24, "Burglary of private residential premises": 215.95, "Theft": 332.4, "Attempted intentional homicide": 1.75, "Money laundering": null, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Burglary": 419.43, "Bribery": null, "Sexual assault": 17.95}, {"year": 2012, "Attempted intentional homicide": 1.63, "Unlawful acts involving controlled drugs or precursors": 30.99, "Money laundering": null, "Burglary": 475.67, "Child pornography": null, "Sexual assault": 16.51, "Bribery": null, "Robbery": 206.34, "Burglary of private residential premises": 270.03, "Corruption": null, "Theft of a motorized vehicle or parts thereof": 92.17, "Kidnapping": 0.25, "Rape": 2.73, "Sexual violence": 19.24, "Serious assault": 37.06, "Fraud": null, "Theft": 353.06, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Acts against computer systems": null, "Intentional homicide": 0.78}, {"year": 2013, "Burglary": 475.24, "Bribery": null, "Sexual assault": 16.32, "Participation in an organized criminal group": null, "Intentional homicide": 0.65, "Unlawful acts involving controlled drugs or precursors": 30.59, "Money laundering": null, "Robbery": 184.12, "Child pornography": null, "Acts against computer systems": null, "Sexual exploitation": null, "Fraud": null, "Burglary of private residential premises": 272.74, "Sexual violence": 19.1, "Serious assault": 35.74, "Theft of a motorized vehicle or parts thereof": 80.47, "Corruption": null, "Kidnapping": 0.26, "Rape": 2.78, "Attempted intentional homicide": 1.42, "Theft": 349.82}, {"year": 2014, "Child pornography": null, "Acts against computer systems": null, "Bribery": null, "Sexual assault": 17.69, "Attempted intentional homicide": 1.56, "Theft": 333.79, "Burglary of private residential premises": 261.82, "Money laundering": null, "Burglary": 445.31, "Sexual exploitation": null, "Robbery": 152.34, "Intentional homicide": 0.69, "Fraud": null, "Sexual violence": 20.36, "Corruption": null, "Kidnapping": 0.21, "Rape": 2.66, "Serious assault": 36.07, "Theft of a motorized vehicle or parts thereof": 70.68, "Unlawful acts involving controlled drugs or precursors": 28.83, "Participation in an organized criminal group": null}, {"year": 2015, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Acts against computer systems": null, "Sexual assault": 13.49, "Bribery": null, "Theft": 442.96, "Attempted intentional homicide": 1.54, "Burglary": 413.87, "Money laundering": null, "Burglary of private residential premises": 248.23, "Unlawful acts involving controlled drugs or precursors": 25.98, "Intentional homicide": 0.65, "Child pornography": null, "Robbery": 139.03, "Kidnapping": 0.2, "Corruption": null, "Serious assault": 62.55, "Fraud": null, "Rape": 2.65, "Theft of a motorized vehicle or parts thereof": 77.65, "Sexual violence": 16.14}, {"year": 2016, "Robbery": 135.56, "Acts against computer systems": null, "Sexual exploitation": 2.78, "Child pornography": 1.34, "Bribery": 0.16, "Intentional homicide": 0.63, "Sexual assault": 16.1, "Participation in an organized criminal group": 2.61, "Unlawful acts involving controlled drugs or precursors": 26.8, "Burglary of private residential premises": 243.97, "Sexual violence": 18.79, "Theft": 351.16, "Attempted intentional homicide": 1.75, "Burglary": 404.26, "Money laundering": 0.56, "Fraud": 394.07, "Rape": 2.69, "Serious assault": 37.32, "Theft of a motorized vehicle or parts thereof": 84.0, "Kidnapping": 0.2, "Corruption": 2.46}, {"year": 2017, "Corruption": 2.42, "Kidnapping": 0.15, "Rape": 2.98, "Theft of a motorized vehicle or parts thereof": 79.69, "Serious assault": 38.87, "Sexual violence": 20.34, "Unlawful acts involving controlled drugs or precursors": 27.85, "Fraud": 461.22, "Burglary of private residential premises": 225.87, "Theft": 349.09, "Bribery": 0.15, "Money laundering": 0.56, "Sexual assault": 17.36, "Burglary": 373.72, "Attempted intentional homicide": 1.76, "Participation in an organized criminal group": 2.44, "Robbery": 132.74, "Intentional homicide": 0.66, "Child pornography": 1.65, "Acts against computer systems": 9.54, "Sexual exploitation": 3.08}, {"year": 2018, "Bribery": 0.17, "Theft": 360.5, "Burglary of private residential premises": 229.68, "Fraud": 619.78, "Unlawful acts involving controlled drugs or precursors": 30.29, "Sexual violence": 24.89, "Rape": 3.64, "Serious assault": 39.2, "Theft of a motorized vehicle or parts thereof": 64.69, "Corruption": 2.09, "Sexual exploitation": 3.02, "Participation in an organized criminal group": 3.05, "Attempted intentional homicide": 1.78, "Burglary": 374.78, "Money laundering": 0.58, "Child pornography": 1.91, "Intentional homicide": 0.62, "Sexual assault": 21.24, "Robbery": 129.23, "Kidnapping": 0.17, "Acts against computer systems": 9.81}, {"year": 2019, "Acts against computer systems": 11.67, "Kidnapping": 0.19, "Bribery": 0.12, "Child pornography": 1.85, "Intentional homicide": 0.71, "Sexual assault": 23.77, "Burglary": 352.04, "Participation in an organized criminal group": 2.48, "Money laundering": 0.63, "Attempted intentional homicide": 1.78, "Sexual violence": 27.76, "Theft": 374.65, "Unlawful acts involving controlled drugs or precursors": 35.42, "Burglary of private residential premises": 209.48, "Sexual exploitation": 3.16, "Fraud": 697.99, "Rape": 3.99, "Theft of a motorized vehicle or parts thereof": 61.62, "Serious assault": 42.73, "Corruption": 1.88, "Robbery": 140.35}, {"year": 2020, "Acts against computer systems": 13.19, "Corruption": 1.61, "Sexual assault": 20.1, "Kidnapping": 0.16, "Robbery": 95.63, "Child pornography": 1.61, "Participation in an organized criminal group": 2.78, "Intentional homicide": 0.63, "Bribery": 0.1, "Money laundering": 0.65, "Attempted intentional homicide": 2.07, "Burglary": 282.48, "Theft of a motorized vehicle or parts thereof": 42.14, "Unlawful acts involving controlled drugs or precursors": 36.15, "Burglary of private residential premises": 152.92, "Theft": 220.82, "Sexual violence": 23.48, "Fraud": 761.74, "Serious assault": 33.81, "Rape": 3.37, "Sexual exploitation": 2.81}, {"year": 2021, "Acts against computer systems": 15.78, "Sexual exploitation": 2.77, "Theft of a motorized vehicle or parts thereof": 42.81, "Unlawful acts involving controlled drugs or precursors": 38.64, "Serious assault": 42.73, "Rape": 4.52, "Corruption": 2.18, "Fraud": 766.27, "Burglary of private residential premises": 159.29, "Participation in an organized criminal group": 3.52, "Sexual violence": 31.47, "Theft": 262.25, "Robbery": 111.97, "Kidnapping": 0.2, "Sexual assault": 26.95, "Child pornography": 1.56, "Attempted intentional homicide": 2.18, "Money laundering": 0.72, "Bribery": 0.29, "Intentional homicide": 0.61, "Burglary": 269.15}, {"year": 2022, "Theft of a motorized vehicle or parts thereof": 50.69, "Acts against computer systems": 15.26, "Sexual exploitation": 4.23, "Unlawful acts involving controlled drugs or precursors": 40.18, "Fraud": 923.85, "Rape": 6.04, "Serious assault": 55.75, "Participation in an organized criminal group": 4.29, "Theft": 383.04, "Sexual violence": 35.4, "Burglary of private residential premises": 182.39, "Burglary": 313.52, "Bribery": 0.37, "Money laundering": 0.87, "Attempted intentional homicide": 2.56, "Intentional homicide": 0.69, "Sexual assault": 29.36, "Child pornography": null, "Robbery": 133.65, "Kidnapping": 0.18, "Corruption": 2.94}];
+            const categories = {"Violent Crimes": ["Intentional homicide", "Attempted intentional homicide", "Serious assault", "Sexual violence", "Sexual assault", "Rape", "Sexual exploitation"], "Property Crimes": ["Theft", "Burglary", "Burglary of private residential premises", "Theft of a motorized vehicle or parts thereof", "Robbery", "Fraud"], "Organized Crime": ["Participation in an organized criminal group", "Money laundering", "Corruption", "Unlawful acts involving controlled drugs or precursors"], "Cyber & Other": ["Acts against computer systems", "Child pornography", "Kidnapping", "Bribery"]};
+            let currentCategory = Object.keys(categories)[0];
+            let currentType = 'lines+markers';
+            
+            
+function createLayout(title) {
+  return {
+    title: {
+      text: title,
+      font: {
+        size: 20,
+        color: '#1e293b',
+        weight: 600
+      }
+    },
+    autosize: true,
+    margin: { t: 60, l: 70, r: 150, b: 60 },
+    plot_bgcolor: 'white',
+    paper_bgcolor: 'white',
+    yaxis: {
+      title: 'Rate per 100,000 inhabitants',
+      zeroline: true,
+      zerolinecolor: '#94a3b8',
+      zerolinewidth: 1,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 },
+      tickformat: '.1f'
+    },
+    xaxis: {
+      title: 'Year',
+      showspikes: true,
+      spikemode: 'across',
+      spikesnap: 'cursor',
+      spikecolor: '#94a3b8',
+      spikethickness: 2,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 }
+    },
+    hovermode: 'x unified',  // Back to unified mode
+    hoverlabel: {
+      align: 'left',
+      bgcolor: 'white',  // Solid white background
+      bordercolor: '#64748b',  // Darker border
+      borderwidth: 1,
+      font: { 
+        size: 13,
+        color: '#1e293b'  // Darker text
+      },
+      namelength: -1
+    },
+    showlegend: true,
+    legend: {
+      font: { size: 12 },
+      bgcolor: 'rgba(255,255,255,0.9)',
+      bordercolor: '#e2e8f0',
+      borderwidth: 1,
+      borderradius: 4
+    },
+    transition: {
+      duration: 500,
+      easing: 'cubic-in-out'
+    }
+  };
+}
+
+function createTrace(crime) {
+  const trace = {
+    x: data.map(d => d.year),
+    y: data.map(d => d[crime]),
+    name: crime,
+    type: currentType === 'lines+markers' ? 'scatter' : 'bar',
+    hovertemplate: `<b>${crime}</b>: %{y:.1f}<extra></extra>`,  // Bold crime name
+    opacity: 0.9,
+  };
+
+  if (currentType === 'lines+markers') {
+    trace.mode = 'lines+markers';
+    trace.line = {
+      width: 3,
+      shape: 'spline',
+      smoothing: 1.3
+    };
+    trace.marker = {
+      size: 8,
+      symbol: 'circle',
+    };
+    trace.connectgaps = true;
+  } else {
+    trace.marker = {
+      line: {
+        width: 1,
+        color: 'white'
+      }
+    };
+  }
+
+  return trace;
+}
+            
+            // Rest of the JavaScript remains the same, just add the new configs
+            
+            // Create buttons with smooth transitions
+            function createButtons() {
+                const container = document.getElementById('categoryButtons');
+                Object.keys(categories).forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.textContent = category;
+                    btn.onclick = () => updateCurrentCategory(category);
+                    if (category === currentCategory) btn.className = 'active';
+                    container.appendChild(btn);
+                });
+            }
+            
+            // Add smooth transitions for view changes
+            function handleViewChange(view) {
+                const categoryView = document.getElementById('categoryView');
+                const individualView = document.getElementById('individualView');
+                
+                categoryView.style.transition = 'opacity 0.3s ease-in-out';
+                individualView.style.transition = 'opacity 0.3s ease-in-out';
+                
+                if (view === 'category') {
+                    individualView.style.opacity = 0;
+                    setTimeout(() => {
+                        individualView.style.display = 'none';
+                        categoryView.style.display = 'block';
+                        setTimeout(() => {
+                            categoryView.style.opacity = 1;
+                            updateCategoryView();
+                        }, 50);
+                    }, 300);
+                } else {
+                    categoryView.style.opacity = 0;
+                    setTimeout(() => {
+                        categoryView.style.display = 'none';
+                        individualView.style.display = 'block';
+                        setTimeout(() => {
+                            individualView.style.opacity = 1;
+                            updateIndividualView();
+                        }, 50);
+                    }, 300);
+                }
+                
+                localStorage.setItem('preferredView', view);
+            }
+            
+            // Initialize event listeners and state
+            window.addEventListener('load', () => {
+                const savedChartType = localStorage.getItem('preferredChartType');
+                const savedView = localStorage.getItem('preferredView');
+                const savedCategory = localStorage.getItem('preferredCategory');
+                
+                // Enhanced initialization with smooth transitions
+                document.body.style.opacity = '0';
+                
+                // Set chart type with animation
+                if (savedChartType) {
+                    currentType = savedChartType;
+                    document.getElementById('chartType').value = savedChartType;
+                }
+                
+                // Set view with animation
+                if (savedView) {
+                    const viewRadio = document.querySelector(`input[name="view"][value="${savedView}"]`);
+                    if (viewRadio) {
+                        viewRadio.checked = true;
+                    }
+                }
+                
+                // Set category
+                if (savedCategory && categories[savedCategory]) {
+                    currentCategory = savedCategory;
+                }
+                
+                createButtons();
+                
+                // Fade in the entire interface
+                requestAnimationFrame(() => {
+                    document.body.style.transition = 'opacity 0.5s ease-in-out';
+                    document.body.style.opacity = '1';
+                    handleViewChange(savedView || 'category');
+                });
+            });
+            
+            // Enhanced chart type update with smooth transitions
+            function updateChartType(newType) {
+                const oldType = currentType;
+                currentType = newType;
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add transition animation
+                Plotly.animate('mainChart', {
+                    data: [],
+                    layout: {}
+                }, {
+                    transition: {
+                        duration: 500,
+                        easing: 'cubic-in-out'
+                    },
+                    frame: {
+                        duration: 500
+                    }
+                }).then(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                });
+                
+                localStorage.setItem('preferredChartType', newType);
+            }
+            
+            // Enhanced category update with smooth transitions
+            function updateCurrentCategory(category) {
+                const oldCategory = currentCategory;
+                currentCategory = category;
+                
+                // Animate button transitions
+                document.querySelectorAll('.category-buttons button').forEach(btn => {
+                    if (btn.textContent === category) {
+                        btn.classList.add('active');
+                        btn.style.transform = 'scale(1.05)';
+                        setTimeout(() => btn.style.transform = 'scale(1)', 200);
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add fade transition
+                const content = document.querySelector('.content');
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                    content.style.transition = 'opacity 0.3s ease-in-out';
+                    content.style.opacity = '1';
+                }, 300);
+                
+                localStorage.setItem('preferredCategory', category);
+            }
+            
+            // Enhanced category view update with improved animations
+            function updateCategoryView() {
+                const crimes = categories[currentCategory];
+                const traces = crimes.map(createTrace);
+                
+                const layout = createLayout(`Crime Trends in Spain - ${currentCategory}`);
+                
+                Plotly.newPlot('mainChart', traces, layout, { 
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: `crime_trends_Spain_${currentCategory}`,
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                });
+            }
+            
+            // Enhanced individual view update with improved animations
+            function updateIndividualView() {
+                const container = document.getElementById('individualView');
+                container.innerHTML = '';
+                container.style.opacity = '0';
+                
+                const crimes = categories[currentCategory];
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.textContent = currentCategory;
+                section.appendChild(title);
+                
+                const grid = document.createElement('div');
+                grid.className = 'charts-grid';
+                
+                crimes.forEach((crime, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'chart-wrapper';
+                    wrapper.style.opacity = '0';
+                    wrapper.style.transform = 'translateY(20px)';
+                    
+                    const chartDiv = document.createElement('div');
+                    chartDiv.id = `chart_${crime.replace(/ /g, '_')}`;
+                    chartDiv.className = 'chart-container';
+                    wrapper.appendChild(chartDiv);
+                    grid.appendChild(wrapper);
+                    
+                    const trace = createTrace(crime);
+                    
+                    // Stagger the animation of individual charts
+                    setTimeout(() => {
+                        Plotly.newPlot(chartDiv, [trace],
+                            createLayout(crime),
+                            { 
+                                responsive: true,
+                                displayModeBar: false,
+                                displaylogo: false
+                            }
+                        );
+                        
+                        wrapper.style.transition = 'all 0.5s ease-in-out';
+                        wrapper.style.opacity = '1';
+                        wrapper.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+                
+                section.appendChild(grid);
+                container.appendChild(section);
+                
+                // Fade in the container
+                requestAnimationFrame(() => {
+                    container.style.transition = 'opacity 0.5s ease-in-out';
+                    container.style.opacity = '1';
+                });
+            }
+            
+            // Enhanced resize handler with debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const view = document.querySelector('input[name="view"]:checked').value;
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                }, 250);
+            });
+            
+            // Add smooth transitions for color theme changes
+            function updateColorTheme(isDark) {
+                document.documentElement.style.transition = 'all 0.3s ease-in-out';
+                if (isDark) {
+                    document.documentElement.style.setProperty('--background-color', '#1a1a1a');
+                    document.documentElement.style.setProperty('--text-color', '#ffffff');
+                    document.documentElement.style.setProperty('--border-color', '#333333');
+                } else {
+                    document.documentElement.style.setProperty('--background-color', '#f8fafc');
+                    document.documentElement.style.setProperty('--text-color', '#1e293b');
+                    document.documentElement.style.setProperty('--border-color', '#e2e8f0');
+                }
+            }
+            
+            // Initialize chart type change listener
+            document.getElementById('chartType').addEventListener('change', (e) => {
+                updateChartType(e.target.value);
+            });
+            
+            // Initialize view change listeners
+            document.querySelectorAll('input[name="view"]').forEach(radio => {
+                radio.addEventListener('change', (e) => handleViewChange(e.target.value));
+            });
+        </script>
+    </body>
+    </html>
+    

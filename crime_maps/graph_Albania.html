@@ -1,0 +1,661 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Crime Trends - Albania</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            :root {
+                --primary-color: #3b82f6;
+                --primary-hover: #2563eb;
+                --background-color: #f8fafc;
+                --border-color: #e2e8f0;
+                --text-color: #1e293b;
+                --shadow-color: rgba(0, 0, 0, 0.06);
+                --transition-speed: 0.3s;
+            }
+            
+            body, html { 
+                margin: 0; 
+                padding: 0; 
+                height: 100%; 
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background-color: var(--background-color);
+                color: var(--text-color);
+            }
+            
+            .container { 
+                width: 100%; 
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                padding: 24px; 
+                box-sizing: border-box; 
+                gap: 24px;
+                max-width: 2560px;
+                margin: 0 auto;
+            }
+            
+            .controls { 
+                background: white; 
+                padding: 24px; 
+                border-radius: 16px; 
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .controls:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .controls-row {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+            
+            .view-controls {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .content {
+                flex: 1;
+                min-height: 0;
+                overflow: auto;
+                padding-right: 20px;
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-color) var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .content::-webkit-scrollbar-track {
+                background: var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 4px;
+            }
+            
+            .category-section {
+                background: white;
+                border-radius: 16px;
+                padding: 32px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .category-section:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .category-title {
+                font-size: 1.75rem;
+                font-weight: 600;
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                border-bottom: 2px solid var(--border-color);
+                color: var(--text-color);
+            }
+            
+            .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+                gap: 32px;
+            }
+            
+            .chart-wrapper { 
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                height: 600px;
+                position: relative;
+                transition: all var(--transition-speed);
+            }
+            
+            .chart-wrapper:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .chart-container {
+                position: absolute;
+                top: 24px;
+                left: 24px;
+                right: 24px;
+                bottom: 24px;
+            }
+            
+            select { 
+                padding: 10px 16px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                font-size: 15px;
+                background: white;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                color: var(--text-color);
+                min-width: 160px;
+            }
+            
+            select:hover {
+                border-color: var(--primary-color);
+            }
+            
+            select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            
+            .radio-group {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .radio-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 15px;
+                transition: all var(--transition-speed);
+            }
+            
+            .radio-label:hover {
+                color: var(--primary-color);
+            }
+            
+            .category-buttons { 
+                display: flex; 
+                gap: 16px; 
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            
+            button { 
+                padding: 10px 20px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                background: white;
+                color: var(--text-color);
+                font-size: 15px;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                font-weight: 500;
+            }
+            
+            button:hover {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            button.active { 
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            @media (min-width: 2000px) {
+                .charts-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+                
+                .chart-wrapper {
+                    height: 600px;
+                }
+            }
+            
+            @media (max-width: 1400px) {
+                .charts-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            
+            @media (max-width: 1200px) {
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .container {
+                    padding: 16px;
+                }
+                
+                .controls {
+                    padding: 20px;
+                }
+                
+                .chart-wrapper {
+                    height: 400px;
+                }
+                
+                .category-title {
+                    font-size: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="controls">
+                <div class="controls-row">
+                    <select id="chartType" aria-label="Chart Type">
+                        <option value="lines+markers">Line Chart</option>
+                        <option value="bar">Bar Chart</option>
+                    </select>
+                    
+                    <div class="view-controls">
+                        <div class="radio-group" role="radiogroup" aria-label="View Type">
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="category" checked>
+                                Category View
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="individual">
+                                Individual Crimes
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="category-buttons" id="categoryButtons" role="toolbar" aria-label="Crime Categories"></div>
+            </div>
+            
+            <div class="content">
+                <div id="categoryView">
+                    <div class="chart-wrapper">
+                        <div id="mainChart" class="chart-container"></div>
+                    </div>
+                </div>
+                
+                <div id="individualView" style="display: none;">
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Initialize data and state
+            const data = [{"year": 2008, "Sexual exploitation": null, "Child pornography": null, "Intentional homicide": 2.78, "Acts against computer systems": null, "Sexual assault": 0.57, "Burglary": 4.54, "Bribery": null, "Robbery": 4.54, "Attempted intentional homicide": 7.63, "Theft": 100.88, "Unlawful acts involving controlled drugs or precursors": 20.6, "Burglary of private residential premises": 21.99, "Participation in an organized criminal group": null, "Money laundering": null, "Sexual violence": 1.8, "Serious assault": 11.45, "Theft of a motorized vehicle or parts thereof": 12.56, "Rape": 1.23, "Corruption": null, "Kidnapping": 0.32, "Fraud": null}, {"year": 2009, "Burglary": 5.31, "Theft": 96.49, "Burglary of private residential premises": 23.77, "Child pornography": null, "Participation in an organized criminal group": null, "Sexual assault": 0.91, "Money laundering": null, "Unlawful acts involving controlled drugs or precursors": 20.32, "Attempted intentional homicide": 7.25, "Acts against computer systems": null, "Robbery": 5.31, "Theft of a motorized vehicle or parts thereof": 15.83, "Intentional homicide": 2.57, "Serious assault": 11.9, "Sexual violence": 1.98, "Corruption": null, "Rape": 1.07, "Fraud": null, "Kidnapping": 0.16, "Sexual exploitation": null, "Bribery": null}, {"year": 2010, "Burglary": null, "Money laundering": null, "Theft of a motorized vehicle or parts thereof": null, "Fraud": null, "Rape": null, "Kidnapping": null, "Sexual violence": null, "Serious assault": null, "Participation in an organized criminal group": null, "Acts against computer systems": null, "Bribery": null, "Sexual assault": null, "Attempted intentional homicide": null, "Unlawful acts involving controlled drugs or precursors": null, "Burglary of private residential premises": null, "Theft": null, "Intentional homicide": null, "Corruption": null, "Robbery": null, "Child pornography": null, "Sexual exploitation": null}, {"year": 2011, "Unlawful acts involving controlled drugs or precursors": 26.13, "Acts against computer systems": null, "Intentional homicide": 4.38, "Child pornography": null, "Robbery": 9.46, "Serious assault": 5.97, "Sexual violence": 1.55, "Fraud": null, "Theft of a motorized vehicle or parts thereof": 21.58, "Rape": 0.78, "Corruption": null, "Kidnapping": 0.07, "Burglary of private residential premises": 34.57, "Theft": 163.19, "Attempted intentional homicide": 7.56, "Money laundering": null, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Burglary": 9.36, "Bribery": null, "Sexual assault": 0.78}, {"year": 2012, "Attempted intentional homicide": null, "Unlawful acts involving controlled drugs or precursors": null, "Money laundering": null, "Burglary": null, "Child pornography": null, "Sexual assault": null, "Bribery": null, "Robbery": null, "Burglary of private residential premises": null, "Corruption": null, "Theft of a motorized vehicle or parts thereof": null, "Kidnapping": null, "Rape": null, "Sexual violence": null, "Serious assault": null, "Fraud": null, "Theft": null, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Acts against computer systems": null, "Intentional homicide": null}, {"year": 2013, "Burglary": null, "Bribery": null, "Sexual assault": null, "Participation in an organized criminal group": null, "Intentional homicide": null, "Unlawful acts involving controlled drugs or precursors": null, "Money laundering": null, "Robbery": null, "Child pornography": null, "Acts against computer systems": null, "Sexual exploitation": null, "Fraud": null, "Burglary of private residential premises": null, "Sexual violence": null, "Serious assault": null, "Theft of a motorized vehicle or parts thereof": null, "Corruption": null, "Kidnapping": null, "Rape": null, "Attempted intentional homicide": null, "Theft": null}, {"year": 2014, "Child pornography": null, "Acts against computer systems": null, "Bribery": null, "Sexual assault": 1.93, "Attempted intentional homicide": 6.25, "Theft": 274.9, "Burglary of private residential premises": 57.21, "Money laundering": null, "Burglary": 10.18, "Sexual exploitation": null, "Robbery": 10.25, "Intentional homicide": 3.38, "Fraud": null, "Sexual violence": 3.35, "Corruption": null, "Kidnapping": 0.07, "Rape": 1.41, "Serious assault": 4.55, "Theft of a motorized vehicle or parts thereof": 13.84, "Unlawful acts involving controlled drugs or precursors": 61.32, "Participation in an organized criminal group": null}, {"year": 2015, "Participation in an organized criminal group": null, "Sexual exploitation": null, "Acts against computer systems": null, "Sexual assault": 2.7, "Bribery": null, "Theft": 242.98, "Attempted intentional homicide": 4.78, "Burglary": 7.98, "Money laundering": null, "Burglary of private residential premises": 47.95, "Unlawful acts involving controlled drugs or precursors": 80.74, "Intentional homicide": 1.86, "Child pornography": null, "Robbery": 8.11, "Kidnapping": 0.27, "Corruption": null, "Serious assault": 5.84, "Fraud": null, "Rape": 2.46, "Theft of a motorized vehicle or parts thereof": 9.57, "Sexual violence": 5.16}, {"year": 2016, "Robbery": 5.53, "Acts against computer systems": 2.92, "Sexual exploitation": 3.65, "Child pornography": 0.17, "Bribery": 8.9, "Intentional homicide": 2.46, "Sexual assault": 2.64, "Participation in an organized criminal group": 0.35, "Unlawful acts involving controlled drugs or precursors": 113.26, "Burglary of private residential premises": 42.13, "Sexual violence": 4.17, "Theft": 196.17, "Attempted intentional homicide": 4.57, "Burglary": 5.23, "Money laundering": 12.69, "Fraud": 31.75, "Rape": 1.53, "Serious assault": 4.08, "Theft of a motorized vehicle or parts thereof": 10.32, "Kidnapping": 0.13, "Corruption": 35.89}, {"year": 2017, "Corruption": 40.12, "Kidnapping": 0.07, "Rape": 1.49, "Theft of a motorized vehicle or parts thereof": 11.44, "Serious assault": 4.35, "Sexual violence": 3.93, "Unlawful acts involving controlled drugs or precursors": 72.55, "Fraud": 35.39, "Burglary of private residential premises": 39.8, "Theft": 177.15, "Bribery": 10.32, "Money laundering": 13.18, "Sexual assault": 2.43, "Burglary": null, "Attempted intentional homicide": 4.48, "Participation in an organized criminal group": 0.45, "Robbery": 6.36, "Intentional homicide": 1.81, "Child pornography": 0.14, "Acts against computer systems": 2.68, "Sexual exploitation": 4.21}, {"year": 2018, "Bribery": 9.55, "Theft": 188.62, "Burglary of private residential premises": 42.43, "Fraud": 32.78, "Unlawful acts involving controlled drugs or precursors": 67.1, "Sexual violence": 3.8, "Rape": 1.46, "Serious assault": 4.7, "Theft of a motorized vehicle or parts thereof": 8.78, "Corruption": 35.99, "Sexual exploitation": 3.34, "Participation in an organized criminal group": 1.11, "Attempted intentional homicide": 3.97, "Burglary": null, "Money laundering": 12.23, "Child pornography": 0.1, "Intentional homicide": 1.78, "Sexual assault": 2.33, "Robbery": 4.63, "Kidnapping": 0.17, "Acts against computer systems": 2.33}, {"year": 2019, "Acts against computer systems": 2.93, "Kidnapping": 0.14, "Bribery": 10.66, "Child pornography": 0.17, "Intentional homicide": 2.03, "Sexual assault": 2.69, "Burglary": null, "Participation in an organized criminal group": 1.33, "Money laundering": 14.01, "Attempted intentional homicide": 3.25, "Sexual violence": 5.38, "Theft": 168.84, "Unlawful acts involving controlled drugs or precursors": 70.26, "Burglary of private residential premises": 40.42, "Sexual exploitation": 3.35, "Fraud": 30.53, "Rape": 2.69, "Theft of a motorized vehicle or parts thereof": 11.11, "Serious assault": 5.52, "Corruption": 46.46, "Robbery": 3.42}, {"year": 2020, "Acts against computer systems": 3.76, "Corruption": 29.76, "Sexual assault": 2.81, "Kidnapping": 0.18, "Robbery": 2.88, "Child pornography": 0.35, "Participation in an organized criminal group": 0.53, "Intentional homicide": 1.83, "Bribery": 5.66, "Money laundering": 14.65, "Attempted intentional homicide": 4.01, "Burglary": null, "Theft of a motorized vehicle or parts thereof": 6.99, "Unlawful acts involving controlled drugs or precursors": 73.75, "Burglary of private residential premises": 31.41, "Theft": 111.11, "Sexual violence": 5.09, "Fraud": 28.04, "Serious assault": 5.34, "Rape": 2.28, "Sexual exploitation": 3.37}, {"year": 2021, "Acts against computer systems": 7.14, "Sexual exploitation": 6.47, "Theft of a motorized vehicle or parts thereof": 7.32, "Unlawful acts involving controlled drugs or precursors": 110.22, "Serious assault": 5.76, "Rape": 2.3, "Corruption": 34.53, "Fraud": 32.55, "Burglary of private residential premises": 26.29, "Participation in an organized criminal group": 0.95, "Sexual violence": 4.77, "Theft": 118.1, "Robbery": 2.83, "Kidnapping": 0.14, "Sexual assault": 2.47, "Child pornography": 4.38, "Attempted intentional homicide": 3.57, "Money laundering": 13.85, "Bribery": 9.29, "Intentional homicide": 2.16, "Burglary": 26.36}, {"year": 2022, "Theft of a motorized vehicle or parts thereof": 4.26, "Acts against computer systems": 5.44, "Sexual exploitation": 7.84, "Unlawful acts involving controlled drugs or precursors": 104.74, "Fraud": 34.69, "Rape": 2.04, "Serious assault": 5.48, "Participation in an organized criminal group": 1.36, "Theft": 87.99, "Sexual violence": 6.05, "Burglary of private residential premises": 21.51, "Burglary": 21.73, "Bribery": 17.68, "Money laundering": 17.0, "Attempted intentional homicide": 3.33, "Intentional homicide": 1.5, "Sexual assault": 4.01, "Child pornography": null, "Robbery": 2.79, "Kidnapping": 0.14, "Corruption": 42.24}];
+            const categories = {"Violent Crimes": ["Intentional homicide", "Attempted intentional homicide", "Serious assault", "Sexual violence", "Sexual assault", "Rape", "Sexual exploitation"], "Property Crimes": ["Theft", "Burglary", "Burglary of private residential premises", "Theft of a motorized vehicle or parts thereof", "Robbery", "Fraud"], "Organized Crime": ["Participation in an organized criminal group", "Money laundering", "Corruption", "Unlawful acts involving controlled drugs or precursors"], "Cyber & Other": ["Acts against computer systems", "Child pornography", "Kidnapping", "Bribery"]};
+            let currentCategory = Object.keys(categories)[0];
+            let currentType = 'lines+markers';
+            
+            
+function createLayout(title) {
+  return {
+    title: {
+      text: title,
+      font: {
+        size: 20,
+        color: '#1e293b',
+        weight: 600
+      }
+    },
+    autosize: true,
+    margin: { t: 60, l: 70, r: 150, b: 60 },
+    plot_bgcolor: 'white',
+    paper_bgcolor: 'white',
+    yaxis: {
+      title: 'Rate per 100,000 inhabitants',
+      zeroline: true,
+      zerolinecolor: '#94a3b8',
+      zerolinewidth: 1,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 },
+      tickformat: '.1f'
+    },
+    xaxis: {
+      title: 'Year',
+      showspikes: true,
+      spikemode: 'across',
+      spikesnap: 'cursor',
+      spikecolor: '#94a3b8',
+      spikethickness: 2,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 }
+    },
+    hovermode: 'x unified',  // Back to unified mode
+    hoverlabel: {
+      align: 'left',
+      bgcolor: 'white',  // Solid white background
+      bordercolor: '#64748b',  // Darker border
+      borderwidth: 1,
+      font: { 
+        size: 13,
+        color: '#1e293b'  // Darker text
+      },
+      namelength: -1
+    },
+    showlegend: true,
+    legend: {
+      font: { size: 12 },
+      bgcolor: 'rgba(255,255,255,0.9)',
+      bordercolor: '#e2e8f0',
+      borderwidth: 1,
+      borderradius: 4
+    },
+    transition: {
+      duration: 500,
+      easing: 'cubic-in-out'
+    }
+  };
+}
+
+function createTrace(crime) {
+  const trace = {
+    x: data.map(d => d.year),
+    y: data.map(d => d[crime]),
+    name: crime,
+    type: currentType === 'lines+markers' ? 'scatter' : 'bar',
+    hovertemplate: `<b>${crime}</b>: %{y:.1f}<extra></extra>`,  // Bold crime name
+    opacity: 0.9,
+  };
+
+  if (currentType === 'lines+markers') {
+    trace.mode = 'lines+markers';
+    trace.line = {
+      width: 3,
+      shape: 'spline',
+      smoothing: 1.3
+    };
+    trace.marker = {
+      size: 8,
+      symbol: 'circle',
+    };
+    trace.connectgaps = true;
+  } else {
+    trace.marker = {
+      line: {
+        width: 1,
+        color: 'white'
+      }
+    };
+  }
+
+  return trace;
+}
+            
+            // Rest of the JavaScript remains the same, just add the new configs
+            
+            // Create buttons with smooth transitions
+            function createButtons() {
+                const container = document.getElementById('categoryButtons');
+                Object.keys(categories).forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.textContent = category;
+                    btn.onclick = () => updateCurrentCategory(category);
+                    if (category === currentCategory) btn.className = 'active';
+                    container.appendChild(btn);
+                });
+            }
+            
+            // Add smooth transitions for view changes
+            function handleViewChange(view) {
+                const categoryView = document.getElementById('categoryView');
+                const individualView = document.getElementById('individualView');
+                
+                categoryView.style.transition = 'opacity 0.3s ease-in-out';
+                individualView.style.transition = 'opacity 0.3s ease-in-out';
+                
+                if (view === 'category') {
+                    individualView.style.opacity = 0;
+                    setTimeout(() => {
+                        individualView.style.display = 'none';
+                        categoryView.style.display = 'block';
+                        setTimeout(() => {
+                            categoryView.style.opacity = 1;
+                            updateCategoryView();
+                        }, 50);
+                    }, 300);
+                } else {
+                    categoryView.style.opacity = 0;
+                    setTimeout(() => {
+                        categoryView.style.display = 'none';
+                        individualView.style.display = 'block';
+                        setTimeout(() => {
+                            individualView.style.opacity = 1;
+                            updateIndividualView();
+                        }, 50);
+                    }, 300);
+                }
+                
+                localStorage.setItem('preferredView', view);
+            }
+            
+            // Initialize event listeners and state
+            window.addEventListener('load', () => {
+                const savedChartType = localStorage.getItem('preferredChartType');
+                const savedView = localStorage.getItem('preferredView');
+                const savedCategory = localStorage.getItem('preferredCategory');
+                
+                // Enhanced initialization with smooth transitions
+                document.body.style.opacity = '0';
+                
+                // Set chart type with animation
+                if (savedChartType) {
+                    currentType = savedChartType;
+                    document.getElementById('chartType').value = savedChartType;
+                }
+                
+                // Set view with animation
+                if (savedView) {
+                    const viewRadio = document.querySelector(`input[name="view"][value="${savedView}"]`);
+                    if (viewRadio) {
+                        viewRadio.checked = true;
+                    }
+                }
+                
+                // Set category
+                if (savedCategory && categories[savedCategory]) {
+                    currentCategory = savedCategory;
+                }
+                
+                createButtons();
+                
+                // Fade in the entire interface
+                requestAnimationFrame(() => {
+                    document.body.style.transition = 'opacity 0.5s ease-in-out';
+                    document.body.style.opacity = '1';
+                    handleViewChange(savedView || 'category');
+                });
+            });
+            
+            // Enhanced chart type update with smooth transitions
+            function updateChartType(newType) {
+                const oldType = currentType;
+                currentType = newType;
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add transition animation
+                Plotly.animate('mainChart', {
+                    data: [],
+                    layout: {}
+                }, {
+                    transition: {
+                        duration: 500,
+                        easing: 'cubic-in-out'
+                    },
+                    frame: {
+                        duration: 500
+                    }
+                }).then(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                });
+                
+                localStorage.setItem('preferredChartType', newType);
+            }
+            
+            // Enhanced category update with smooth transitions
+            function updateCurrentCategory(category) {
+                const oldCategory = currentCategory;
+                currentCategory = category;
+                
+                // Animate button transitions
+                document.querySelectorAll('.category-buttons button').forEach(btn => {
+                    if (btn.textContent === category) {
+                        btn.classList.add('active');
+                        btn.style.transform = 'scale(1.05)';
+                        setTimeout(() => btn.style.transform = 'scale(1)', 200);
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add fade transition
+                const content = document.querySelector('.content');
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                    content.style.transition = 'opacity 0.3s ease-in-out';
+                    content.style.opacity = '1';
+                }, 300);
+                
+                localStorage.setItem('preferredCategory', category);
+            }
+            
+            // Enhanced category view update with improved animations
+            function updateCategoryView() {
+                const crimes = categories[currentCategory];
+                const traces = crimes.map(createTrace);
+                
+                const layout = createLayout(`Crime Trends in Albania - ${currentCategory}`);
+                
+                Plotly.newPlot('mainChart', traces, layout, { 
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: `crime_trends_Albania_${currentCategory}`,
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                });
+            }
+            
+            // Enhanced individual view update with improved animations
+            function updateIndividualView() {
+                const container = document.getElementById('individualView');
+                container.innerHTML = '';
+                container.style.opacity = '0';
+                
+                const crimes = categories[currentCategory];
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.textContent = currentCategory;
+                section.appendChild(title);
+                
+                const grid = document.createElement('div');
+                grid.className = 'charts-grid';
+                
+                crimes.forEach((crime, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'chart-wrapper';
+                    wrapper.style.opacity = '0';
+                    wrapper.style.transform = 'translateY(20px)';
+                    
+                    const chartDiv = document.createElement('div');
+                    chartDiv.id = `chart_${crime.replace(/ /g, '_')}`;
+                    chartDiv.className = 'chart-container';
+                    wrapper.appendChild(chartDiv);
+                    grid.appendChild(wrapper);
+                    
+                    const trace = createTrace(crime);
+                    
+                    // Stagger the animation of individual charts
+                    setTimeout(() => {
+                        Plotly.newPlot(chartDiv, [trace],
+                            createLayout(crime),
+                            { 
+                                responsive: true,
+                                displayModeBar: false,
+                                displaylogo: false
+                            }
+                        );
+                        
+                        wrapper.style.transition = 'all 0.5s ease-in-out';
+                        wrapper.style.opacity = '1';
+                        wrapper.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+                
+                section.appendChild(grid);
+                container.appendChild(section);
+                
+                // Fade in the container
+                requestAnimationFrame(() => {
+                    container.style.transition = 'opacity 0.5s ease-in-out';
+                    container.style.opacity = '1';
+                });
+            }
+            
+            // Enhanced resize handler with debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const view = document.querySelector('input[name="view"]:checked').value;
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                }, 250);
+            });
+            
+            // Add smooth transitions for color theme changes
+            function updateColorTheme(isDark) {
+                document.documentElement.style.transition = 'all 0.3s ease-in-out';
+                if (isDark) {
+                    document.documentElement.style.setProperty('--background-color', '#1a1a1a');
+                    document.documentElement.style.setProperty('--text-color', '#ffffff');
+                    document.documentElement.style.setProperty('--border-color', '#333333');
+                } else {
+                    document.documentElement.style.setProperty('--background-color', '#f8fafc');
+                    document.documentElement.style.setProperty('--text-color', '#1e293b');
+                    document.documentElement.style.setProperty('--border-color', '#e2e8f0');
+                }
+            }
+            
+            // Initialize chart type change listener
+            document.getElementById('chartType').addEventListener('change', (e) => {
+                updateChartType(e.target.value);
+            });
+            
+            // Initialize view change listeners
+            document.querySelectorAll('input[name="view"]').forEach(radio => {
+                radio.addEventListener('change', (e) => handleViewChange(e.target.value));
+            });
+        </script>
+    </body>
+    </html>
+    
