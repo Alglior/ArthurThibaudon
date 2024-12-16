@@ -72,9 +72,29 @@
         .info-panel .credits strong {
             color: rgba(255, 255, 255, 0.9);
         }
+        button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #222;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
+<button onclick="window.location.href='../../index.html'" >Back to Home</button>
+
     <div id="loading">Loading globe data...</div>
     <div class="tooltip"></div>
     <div class="info-panel">
@@ -82,7 +102,11 @@
         <p>Cette visualisation interactive présente la distribution de la population mondiale en 2004. Chaque point représente la population d'un pays, sa taille et sa couleur indiquant l'importance de sa population.</p>
         <div class="credits">
             <p><strong>Créateur :</strong> THIBAUDON Arthur</p>
-            <p><strong>Sources :</strong> Banque Mondiale, Natural Earth Data</p>
+            <p><strong>Sources :</strong> 
+                <a href="https://datacatalog.worldbank.org/search/dataset/0037996/Statistical-Performance-Indicators" target="_blank" style="color: #74add1; text-decoration: none;">Banque Mondiale</a>, 
+                <a href="https://www.naturalearthdata.com/downloads/10m-cultural-vectors/" target="_blank" style="color: #74add1; text-decoration: none;">Natural Earth Data</a>
+            </p>
+           
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -230,6 +254,16 @@
             const maxPop = Math.max(...data.features.map(f => f.properties.population));
             const radius = 5.2;
             
+            // Calculate rankings
+            const sortedCountries = data.features
+                .filter(f => f.properties.population)
+                .sort((a, b) => b.properties.population - a.properties.population);
+            
+            const rankings = new Map();
+            sortedCountries.forEach((country, index) => {
+                rankings.set(country.properties.country, index + 1);
+            });
+            
             data.features.forEach(feature => {
                 if (!feature.geometry || !feature.properties.population) return;
                 
@@ -237,6 +271,7 @@
                 const population = feature.properties.population;
                 const populationRatio = population / maxPop;
                 const size = Math.max(0.05, Math.sqrt(populationRatio) * 0.4);
+                const ranking = rankings.get(feature.properties.country);
 
                 const position = latLongToVector3(coords[1], coords[0], radius);
                 const colorInfo = interpolateColor(populationRatio, population);
@@ -288,7 +323,9 @@
                     name: feature.properties.country || 'Unknown',
                     date: feature.properties.date,
                     color: colorInfo.color.getHexString(),
-                    class: colorInfo.className
+                    class: colorInfo.className,
+                    ranking: ranking,
+                    totalCountries: sortedCountries.length
                 };
                 
                 points.add(pointGroup);
@@ -317,6 +354,7 @@
                         <div>${pointGroup.userData.name}</div>
                         <div class="population">${pointGroup.userData.population.toLocaleString()}</div>
                         <div class="date">${pointGroup.userData.date} · ${pointGroup.userData.class}</div>
+                        <div class="ranking">Rank: ${pointGroup.userData.ranking} of ${pointGroup.userData.totalCountries}</div>
                     `;
                 } else {
                     tooltip.style.display = 'none';
