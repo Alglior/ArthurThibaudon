@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Population Globe</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas { 
+            display: block;
+            margin: auto;
+            cursor: grab;
+            width: 100vmin;  /* Use viewport min units */
+            height: 100vmin;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .legend,
+        .legend h2,
+        .legend-item,
+        .legend-color,
+        .legend-label {
+            display: none;
+        }
+        .popup {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+
+        .popup.visible {
+            opacity: 1;
+        }
+
+        .popup-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #60a5fa;
+        }
+
+        .popup-content {
+            line-height: 1.4;
+        }
+        
+        .popup-rank {
+            display: inline-block;
+            background: #60a5fa;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .description {
+            position: absolute;
+            left: 40px;
+            bottom: 40px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            font-size: 14px;
+            max-width: 400px;
+            color: #fff;
+        }
+        .description h3 {
+            margin: 0 0 10px 0;
+            color: #60a5fa;
+        }
+        .description p {
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+        }
+        .description .sources {
+            margin-top: 12px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .description a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        .description a:hover {
+            text-decoration: underline;
+        }
+        .back-button {
+            position: absolute;
+            left: 40px;
+            top: 40px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #60a5fa;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .back-button:hover {
+            background: rgba(30, 41, 59, 0.95);
+            transform: translateY(-2px);
+        }
+        .legend {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    background: rgba(15, 23, 42, 0.98);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: white;
+    backdrop-filter: blur(12px);
+    min-width: 300px;
+    transform: translateZ(0);
+    border: 1px solid rgba(96, 165, 250, 0.1);
+}
+
+.legend h2 {
+    color: #60a5fa;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    padding-bottom: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.legend-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.legend-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.legend-item:hover .legend-color {
+    transform: scale(1.1);
+}
+
+.legend-label {
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Make legend visible */
+.legend,
+.legend h2,
+.legend-item,
+.legend-color,
+.legend-label {
+    display: block;
+}
+
+/* Animation for legend appearance */
+@keyframes legendFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.legend {
+    animation: legendFadeIn 0.5s ease forwards;
+}
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='../index.html'">← Retour</button>
+    <canvas id="globe"></canvas>
+    <!-- Add the legend -->
+    <div class="legend">
+        <h2>Population en 2004</h2>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #00220e;"></div>
+            <span class="legend-label">Population supérieure à 1 milliard</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #00441b;"></div>
+            <span class="legend-label">Population supérieure à 200 millions</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #006d2c;"></div>
+            <span class="legend-label">Population supérieure à 50 millions</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #31a354;"></div>
+            <span class="legend-label">Population supérieure à 10 millions</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #74c476;"></div>
+            <span class="legend-label">Population supérieure à 2 millions</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #c7e9c0;"></div>
+            <span class="legend-label">Population supérieure à 500 000</span>
+        </div>
+    </div>
+    <div id="popup" class="popup">
+        <div class="popup-title"></div>
+        <div class="popup-content"></div>
+    </div>
+    <div class="description">
+        <h3>Population Mondiale en 2004</h3>
+        <p>Cette visualisation interactive présente la distribution de la population mondiale en 2004. Chaque point représente la population d'un pays, sa taille et sa couleur indiquant l'importance de sa population.</p>
+        <p>Discrétisation : seuils manuels
+        </p>
+        <p>Créateur : THIBAUDON Arthur</p>
+        <div class="sources">
+            Sources : 
+            <a href="https://datacatalog.worldbank.org/search/dataset/0037996/Statistical-Performance-Indicators" target="_blank">Banque Mondiale</a>,
+            <a href="https://www.naturalearthdata.com/downloads/50m-cultural-vectors/" target="_blank">Natural Earth Data</a>
+        </div>
+    </div>
+    <script>
+        // Create offscreen canvas for double buffering
+        const canvas = document.getElementById('globe');
+        const offscreenCanvas = document.createElement('canvas');
+        const offscreenContext = offscreenCanvas.getContext('2d');
+        const width = Math.min(window.innerWidth, window.innerHeight);
+        const height = width; // Keep it square
+        
+        canvas.width = width;
+        canvas.height = height;
+        offscreenCanvas.width = width;
+        offscreenCanvas.height = height;
+        
+        const context = canvas.getContext('2d');
+        let rotation = [0, 0, 0];
+        let rotationVelocity = [0, 0, 0];
+        let lastMousePos = [0, 0];
+        let scale = Math.min(width, height) * 0.45; // Make globe 90% of the container
+        const rotationSensitivity = 0.3;
+        const rotationDamping = 0.95;
+        const minRotationSpeed = 0.001;
+        const minScale = scale * 0.2;  // Changed from 0.5 to 0.2 to allow zooming out more
+        const maxScale = scale * 5;    // Changed from 3 to 5 to allow zooming in more
+        
+        // Update projection settings
+        const projection = d3.geoOrthographic()
+            .scale(scale)
+            .clipAngle(90)
+            .precision(0.1)
+            .translate([width/2, height/2]);
+        
+        const path = d3.geoPath()
+            .projection(projection)
+            .context(offscreenContext);
+
+        let dragging = false;
+        let dragStart = null;
+        let rafId = null;
+        let lastFrameTime = 0;
+        const targetFPS = 60;
+        const frameInterval = 1000 / targetFPS;
+
+        // Replace the rotation normalization function
+        function normalizeRotation(rot) {
+            // Don't normalize Y rotation (phi) to prevent pole snapping
+            return [
+                ((rot[0] % 360) + 360) % 360, // lambda (longitude)
+                rot[1],                        // phi (latitude) - don't normalize
+                ((rot[2] % 360) + 360) % 360  // gamma (roll)
+            ];
+        }
+
+        function updateRotationVelocity(currentPos) {
+            if (dragStart && dragging) {
+                const deltaX = (currentPos[0] - lastMousePos[0]) * rotationSensitivity;
+                const deltaY = (currentPos[1] - lastMousePos[1]) * rotationSensitivity;
+                
+                rotationVelocity[0] = deltaX;
+                rotationVelocity[1] = deltaY;
+            }
+            lastMousePos = currentPos;
+        }
+
+        // Replace the mouse event listeners
+        canvas.addEventListener('mousedown', (e) => {
+            dragging = true;
+            dragStart = [e.clientX, e.clientY];
+            lastMousePos = [e.clientX, e.clientY];
+            rotationVelocity = [0, 0, 0];
+        });
+
+        // Update the mousemove event listener
+        canvas.addEventListener('mousemove', (e) => {
+            if (dragging) {
+                const currentPos = [e.clientX, e.clientY];
+                
+                if (e.shiftKey) {
+                    // Z-axis rotation
+                    const deltaX = (currentPos[0] - lastMousePos[0]) * rotationSensitivity;
+                    rotation[2] += deltaX;
+                } else {
+                    // X and Y axis rotation with smoother pole handling
+                    const deltaX = (currentPos[0] - lastMousePos[0]) * rotationSensitivity;
+                    const deltaY = (currentPos[1] - lastMousePos[1]) * rotationSensitivity;
+                    
+                    rotation[0] += deltaX;
+                    
+                    // Prevent sudden jumps near poles
+                    const newPhi = rotation[1] + deltaY;
+                    if (Math.abs(newPhi) < 88) { // Limit to ±88 degrees instead of 90
+                        rotation[1] = newPhi;
+                    }
+                }
+                
+                updateRotationVelocity(currentPos);
+                lastMousePos = currentPos;
+                draw();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            dragging = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            dragging = false;
+        });
+
+        // Enhanced wheel zoom handling
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = -e.deltaY * 0.5;
+            const newScale = Math.max(minScale, Math.min(maxScale, scale + delta));
+            
+            // Maintain globe size by adjusting projection
+            const scaleRatio = newScale / scale;
+            scale = newScale;
+            
+            projection.scale(scale);
+            draw();
+        });
+
+        // Load and render data
+        Promise.all([
+            d3.json('countries.json'),
+            d3.json('population.json')
+        ]).then(([countries, population]) => {
+            console.log("Data loaded:", 
+                countries.features.length + " countries,",
+                population.features.length + " population points");
+
+            // Create distinct population classes
+            const popValues = population.features.map(d => d.properties.population);
+            
+            // Define new class breaks based on real-world population distribution
+            const breaks = [
+                0,              // Start
+                500000,        // 500K (small cities)
+                2000000,       // 2M (medium cities)
+                10000000,      // 10M (large cities)
+                50000000,      // 50M (small countries)
+                200000000,     // 200M (large countries)
+                1000000000     // 1B+ (China, India)
+            ];
+
+            // Enhanced color scheme for better visualization
+            const colors = [
+                '#edf8e9',  // Very light green
+                '#c7e9c0',  // Light green
+                '#74c476',  // Medium green
+                '#31a354',  // Dark green
+                '#006d2c',  // Very dark green
+                '#00441b',  // Deepest green
+                '#00220e'   // Almost black green
+            ];
+
+            // Create color scale using classes
+            const colorScale = d3.scaleThreshold()
+                .domain(breaks.slice(1))  // Remove the first break (0) from domain
+                .range(colors);           // Now colors will align correctly
+
+            // Create enhanced size scale with bigger range and zoom adaptation
+            function getPointSize(population, currentScale) {
+                // Get base size from population breaks
+                const baseSize = d3.scaleThreshold()
+                    .domain(breaks.slice(1))
+                    .range([4, 8, 12, 16, 20, 24, 28])(population);
+                
+                // Calculate zoom factor (1 at default zoom, >1 when zoomed in, <1 when zoomed out)
+                const zoomFactor = scale / (width * 0.45);
+                
+                // Adjust size based on zoom: make points bigger when zoomed in
+                return baseSize * Math.sqrt(zoomFactor);
+            }
+
+            // Cache for visible points
+            let visiblePoints = new Set();
+            
+            // Spatial index for points using TypedArrays
+            const pointsData = new Float32Array(population.features.length * 4); // x, y, population, visible
+            
+            // Initialize points data
+            population.features.forEach((d, i) => {
+                const idx = i * 4;
+                pointsData[idx] = d.geometry.coordinates[0];     // x
+                pointsData[idx + 1] = d.geometry.coordinates[1]; // y
+                pointsData[idx + 2] = d.properties.population;   // population
+                pointsData[idx + 3] = 1;                        // visible flag
+            });
+
+            // Add popup elements
+            const popup = document.getElementById('popup');
+            const popupTitle = popup.querySelector('.popup-title');
+            const popupContent = popup.querySelector('.popup-content');
+            
+            // Create country lookup for faster access
+            const countryLookup = {};
+            countries.features.forEach(country => {
+                countryLookup[country.id] = country.properties.name;
+            });
+
+            // Create population ranking
+            const populationRanking = population.features
+                .map((feature, index) => ({
+                    index,
+                    population: feature.properties.population,
+                    country: feature.properties.country
+                }))
+                .sort((a, b) => b.population - a.population)
+                .reduce((acc, curr, rank) => {
+                    acc[curr.country] = {
+                        rank: rank + 1,
+                        population: curr.population
+                    };
+                    return acc;
+                }, {});
+
+            // Add click handler
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Check if we clicked on a point
+                let clickedPoint = null;
+                visiblePoints.forEach(i => {
+                    const idx = i * 4;
+                    const coords = projection([pointsData[idx], pointsData[idx + 1]]);
+                    if (coords) {
+                        const [px, py] = coords;
+                        const pop = pointsData[idx + 2];
+                        const radius = getPointSize(pop, scale);
+                        
+                        // Check if click is within point radius
+                        if (Math.hypot(x - px, y - py) <= radius) {
+                            clickedPoint = {
+                                x: px,
+                                y: py,
+                                population: pop,
+                                country: population.features[i].properties.country
+                            };
+                        }
+                    }
+                });
+
+                if (clickedPoint) {
+                    const ranking = populationRanking[clickedPoint.country];
+                    const formattedPop = new Intl.NumberFormat('fr-FR').format(clickedPoint.population);
+                    const rankText = getRankText(ranking.rank);
+                    
+                    popupTitle.textContent = countryLookup[clickedPoint.country] || clickedPoint.country;
+                    popupContent.innerHTML = `
+                        Population : ${formattedPop} habitants
+                        <span class="popup-rank">${rankText}</span>
+                    `;
+                    
+                    // Position popup
+                    popup.style.left = `${clickedPoint.x + rect.left}px`;
+                    popup.style.top = `${clickedPoint.y + rect.top - popup.offsetHeight - 10}px`;
+                    popup.classList.add('visible');
+                } else {
+                    popup.classList.remove('visible');
+                }
+            });
+
+            // Helper function for French rank text
+            function getRankText(rank) {
+                if (rank === 1) return "1ère population";
+                return `${rank}ème population`;
+            }
+
+            // Hide popup when starting to drag
+            canvas.addEventListener('mousedown', () => {
+                popup.classList.remove('visible');
+            });
+
+            function updateProjection() {
+                visiblePoints.clear();
+                
+                // Apply rotation angles directly without multiplication
+                projection.rotate([
+                    rotation[0], 
+                    -rotation[1], 
+                    rotation[2]
+                ]);
+
+                // Get current rotation in radians
+                const [lambda, phi] = projection.rotate().map(d => -d * Math.PI / 180);
+                
+                // Calculate view vector
+                const cosLambda = Math.cos(lambda);
+                const sinLambda = Math.sin(lambda);
+                const cosPhi = Math.cos(phi);
+                const sinPhi = Math.sin(phi);
+                const viewVector = [
+                    cosPhi * cosLambda,
+                    cosPhi * sinLambda,
+                    sinPhi
+                ];
+
+                // Batch process points visibility
+                for (let i = 0; i < pointsData.length; i += 4) {
+                    // Convert point coordinates to 3D vector
+                    const lon = pointsData[i] * Math.PI / 180;
+                    const lat = pointsData[i + 1] * Math.PI / 180;
+                    const cosLat = Math.cos(lat);
+                    
+                    const pointVector = [
+                        cosLat * Math.cos(lon),
+                        cosLat * Math.sin(lon),
+                        Math.sin(lat)
+                    ];
+
+                    // Calculate dot product to determine if point is visible
+                    const dotProduct = viewVector[0] * pointVector[0] +
+                                     viewVector[1] * pointVector[1] +
+                                     viewVector[2] * pointVector[2];
+
+                    // Only show points that face the viewer (dot product > 0)
+                    if (dotProduct > 0) {
+                        const coords = projection([pointsData[i], pointsData[i + 1]]);
+                        if (coords) {
+                            const [x, y] = coords;
+                            if (x >= 0 && x <= width && y >= 0 && y <= height) {
+                                visiblePoints.add(i/4);
+                                pointsData[i + 3] = 1;
+                                continue;
+                            }
+                        }
+                    }
+                    pointsData[i + 3] = 0;
+                }
+            }
+
+            function draw(timestamp) {
+                // Frame rate control
+                if (timestamp - lastFrameTime < frameInterval) {
+                    rafId = requestAnimationFrame(draw);
+                    return;
+                }
+                lastFrameTime = timestamp;
+
+                if (!dragging) {
+                    // Only apply momentum, remove auto-rotation
+                    if (Math.abs(rotationVelocity[0]) > minRotationSpeed ||
+                        Math.abs(rotationVelocity[1]) > minRotationSpeed ||
+                        Math.abs(rotationVelocity[2]) > minRotationSpeed) {
+                        
+                        rotation[0] += rotationVelocity[0];
+                        rotation[1] += rotationVelocity[1];
+                        rotation[2] += rotationVelocity[2];
+                        
+                        // Apply damping
+                        rotationVelocity = rotationVelocity.map(v => v * rotationDamping);
+                    }
+                }
+
+                rotation = normalizeRotation(rotation);
+                
+                // Apply consistent globe size
+                const currentScale = projection.scale();
+                projection.scale(scale);
+                
+                // Clear with larger radius to prevent edge artifacts
+                const clearRadius = scale * 1.2;
+
+                updateProjection();
+
+                // Draw to offscreen canvas
+                // Clear canvas with enhanced gradient
+                const gradient = offscreenContext.createRadialGradient(
+                    width/2, height/2, 0,
+                    width/2, height/2, width * 0.6
+                );
+                gradient.addColorStop(0, '#1e293b');
+                gradient.addColorStop(0.5, '#0f172a');
+                gradient.addColorStop(1, '#020617');
+                offscreenContext.fillStyle = gradient;
+                offscreenContext.fillRect(0, 0, width, height);
+                
+                // Enhanced globe outline with consistent size
+                offscreenContext.beginPath();
+                offscreenContext.arc(width/2, height/2, scale, 0, 2 * Math.PI);
+                offscreenContext.fillStyle = '#1e3a8a';
+                offscreenContext.shadowColor = 'rgba(56, 189, 248, 0.3)';
+                offscreenContext.shadowBlur = 30;
+                offscreenContext.fill();
+                
+                offscreenContext.shadowBlur = 0;
+                
+                // Draw countries with enhanced styling
+                offscreenContext.beginPath();
+                path({type: 'FeatureCollection', features: countries.features});
+                offscreenContext.fillStyle = '#2563eb';
+                offscreenContext.fill();
+                offscreenContext.strokeStyle = '#60a5fa';
+                offscreenContext.lineWidth = 0.3;
+                offscreenContext.stroke();
+                
+                // Batch render visible points
+                visiblePoints.forEach(i => {
+                    const idx = i * 4;
+                    const coords = projection([pointsData[idx], pointsData[idx + 1]]);
+                    if (coords) {
+                        const [x, y] = coords;
+                        const pop = pointsData[idx + 2];
+                        
+                        offscreenContext.beginPath();
+                        offscreenContext.arc(x, y, getPointSize(pop, scale), 0, 2 * Math.PI);
+                        offscreenContext.fillStyle = colorScale(pop);
+                        offscreenContext.fill();
+                    }
+                });
+
+                // Copy to main canvas
+                context.clearRect(0, 0, width, height);
+                context.drawImage(offscreenCanvas, 0, 0);
+                
+                rafId = requestAnimationFrame(draw);
+            }
+            
+            // Start animation with proper cleanup
+            function startAnimation() {
+                if (rafId) cancelAnimationFrame(rafId);
+                rafId = requestAnimationFrame(draw);
+            }
+
+            function stopAnimation() {
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            }
+
+            // Add touch support for mobile devices
+            let touchStartDistance = 0;
+            let lastTouchPos = null;
+        
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    dragging = true;
+                    lastTouchPos = [e.touches[0].clientX, e.touches[0].clientY];
+                    rotationVelocity = [0, 0, 0];
+                } else if (e.touches.length === 2) {
+                    touchStartDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            });
+
+            // Update touch move handler similarly
+            canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && lastTouchPos) {
+                    const currentPos = [e.touches[0].clientX, e.touches[0].clientY];
+                    const deltaX = (currentPos[0] - lastTouchPos[0]) * rotationSensitivity;
+                    const deltaY = (currentPos[1] - lastTouchPos[1]) * rotationSensitivity;
+                    
+                    rotation[0] += deltaX;
+                    
+                    // Prevent sudden jumps near poles
+                    const newPhi = rotation[1] + deltaY;
+                    if (Math.abs(newPhi) < 88) {
+                        rotation[1] = newPhi;
+                    }
+                    
+                    updateRotationVelocity(currentPos);
+                    rotation = normalizeRotation(rotation);
+                    lastTouchPos = currentPos;
+                    draw();
+                // ...rest of touch handling...
+                }
+            });
+
+            canvas.addEventListener('touchend', () => {
+                dragging = false;
+                lastTouchPos = null;
+            });
+
+            // Add window resize handling
+            window.addEventListener('resize', () => {
+                const newWidth = Math.min(window.innerWidth, window.innerHeight);
+                const newHeight = newWidth;
+                
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                offscreenCanvas.width = newWidth;
+                offscreenCanvas.height = newHeight;
+                
+                scale = newWidth * 0.45;
+                projection.scale(scale)
+                         .translate([newWidth/2, newHeight/2]);
+                
+                draw();
+            });
+
+            // Clean up on page unload
+            window.addEventListener('unload', stopAnimation);
+            
+            startAnimation();
+        }).catch(error => {
+            console.error("Error loading data:", error);
+        });
+    </script>
+</body>
+</html>
