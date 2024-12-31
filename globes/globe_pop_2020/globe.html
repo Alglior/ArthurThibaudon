@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>3D Globe with Country Borders</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        canvas { display: block; }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            display: none;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border-left: 4px solid #fff;
+            backdrop-filter: blur(4px);
+        }
+        .tooltip .population {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .tooltip .date {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-panel h1 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .info-panel p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-panel .credits {
+            margin-top: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .info-panel .credits strong {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #222;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+        .table-panel, .context-box {
+            position: fixed;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            width: 525px; /* Increased from 350px (1.5x) */
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+        }
+
+        .table-panel {
+            top: 20px;
+            height: 45vh; /* Increased from 30vh (1.5x) */
+            padding: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .context-box {
+            top: calc(45vh + 40px);
+            height: 25vh; /* Reduced from 45vh to 25vh */
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Adjust table container to account for header padding */
+        .table-panel .table-container {
+            padding: 0 20px 20px;
+        }
+
+        .table-panel h2 {
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.95);
+            margin: 0;
+            padding: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+            z-index: 3; /* Ensure title stays on top */
+        }
+
+        .table-panel table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            padding: 0;
+        }
+
+        .table-panel th {
+            background: rgba(0, 0, 0, 0.95);
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            color: #74add1;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .table-panel th.sortable::after {
+            content: '↕';
+            margin-left: 8px;
+            opacity: 0.3;
+        }
+
+        .table-panel th.sorted-asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        .table-panel th.sorted-desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .table-panel td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .table-panel tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .table-panel tr:hover {
+            background: rgba(116, 173, 209, 0.1);
+        }
+
+        /* Column widths */
+        .table-panel th:nth-child(1), 
+        .table-panel td:nth-child(1) {
+            width: 10%;
+            text-align: center;
+        }
+
+        .table-panel th:nth-child(2), 
+        .table-panel td:nth-child(2) {
+            width: 70%;  /* Increased country name width */
+        }
+
+        .table-panel th:nth-child(3), 
+        .table-panel td:nth-child(3) {
+            width: 20%;  /* One-fifth for population */
+            text-align: right;
+            font-variant-numeric: tabular-nums;  /* For better number alignment */
+        }
+
+        .toggle-ui-btn {
+            position: fixed;
+            top: 20px;
+            left: 160px; /* Increased from 140px to add more space */
+            background-color: #222;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .toggle-ui-btn:hover {
+            background-color: #555;
+        }
+
+        .ui-element {
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .search-container {
+            padding: 15px 20px;
+            position: sticky;
+            top: 60px; /* Adjusted to account for title height */
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2;
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            color: white;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #74add1;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sort-btn {
+            background: rgba(116, 173, 209, 0.3) !important; /* Make background more visible */
+            border: 2px solid rgba(116, 173, 209, 0.5) !important;
+            padding: 8px 15px !important;
+            color: white !important; /* Change text color to white for better visibility */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the text */
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sort-btn::after {
+            content: '↓';
+            margin-left: 8px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .sort-btn:hover {
+            background: rgba(116, 173, 209, 0.5) !important;
+            transform: translateY(-1px);
+        }
+
+        .sort-btn.active {
+            background: rgba(116, 173, 209, 0.7) !important;
+            border-color: #74add1 !important;
+        }
+
+        .sort-btn.active::after {
+            content: '↑';
+        }
+
+        /* Adjust thead position to account for search bar */
+        .table-panel thead {
+            position: sticky;
+            top: 115px; /* Adjusted to account for title + search container height */
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1;
+        }
+
+        .table-panel tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .table-panel tr.selected {
+            background: rgba(116, 173, 209, 0.2) !important;
+        }
+
+        .legend {
+            position: fixed;
+            top: 80px; /* Positioned below the Back and Toggle UI buttons */
+            left: 20px; /* Aligned with other left elements */
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: Arial, sans-serif;
+            width: 300px; /* Reduced width */
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .legend h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 11px;
+            width: 100%; /* Take full width */
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+
+    </style>
+</head>
+<body>
+<button onclick="window.location.href='../../index.html'" >Back to Home</button>
+<button class="toggle-ui-btn" onclick="toggleUI()">Toggle UI</button>
+
+    <div id="loading" class="ui-element">Loading globe data...</div>
+    <div class="tooltip ui-element"></div>
+    <div class="info-panel ui-element">
+        <h1>Population Mondiale en 2020</h1>
+        <p>Cette visualisation interactive présente la distribution de la population mondiale en 2020. Chaque point représente la population d'un pays, sa taille et sa couleur indiquant l'importance de sa population.</p>
+        <div class="credits">
+            <p><strong>Créateur :</strong> THIBAUDON Arthur</p>
+            <p><strong>Sources :</strong> 
+                <a href="https://datacatalog.worldbank.org/search/dataset/0037996/Statistical-Performance-Indicators" target="_blank" style="color: #74add1; text-decoration: none;">Banque Mondiale</a>, 
+                <a href="https://www.naturalearthdata.com/downloads/10m-cultural-vectors/" target="_blank" style="color: #74add1; text-decoration: none;">Natural Earth Data</a>
+            </p>
+           
+        </div>
+    </div>
+    <div class="table-panel ui-element">
+        <h2>Classement des Pays par Population</h2>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Rechercher un pays..." id="searchInput">
+            <button class="sort-btn" id="sortBtn">Trier</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Pays</th>
+                        <th class="sortable" id="populationHeader">Population</th>
+                    </tr>
+                </thead>
+                <tbody id="populationTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="context-box ui-element">
+        <h2>Contexte</h2>
+        <div id="contextContent">
+            <!-- Le contenu du contexte sera ajouté ici -->
+        </div>
+    </div>
+    <div class="legend ui-element">
+        <h3>Population</h3>
+        <div id="legend-content"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        let scene, camera, renderer, globe, controls;
+        let countriesData = null;
+        let populationData = null;
+        let tooltip;
+
+        init();
+        loadData();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            // Create a gradient background
+            const bgTexture = new THREE.Texture(generateGradientBackground());
+            bgTexture.needsUpdate = true;
+            scene.background = bgTexture;
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                logarithmicDepthBuffer: true,
+                sortObjects: false // Add this line
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Enhanced lighting setup
+            const ambientLight = new THREE.AmbientLight(0x222244, 0.8);
+            scene.add(ambientLight);
+
+            // Replace the directional light setup with a simpler fixed light
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            mainLight.position.set(5, 3, 5);
+            scene.add(mainLight);
+
+            // Load Earth texture
+            const textureLoader = new THREE.TextureLoader();
+            const earthTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg');
+            const bumpMap = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg');
+            const specMap = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg');
+
+            // Create modern globe with texture
+            const geometry = new THREE.SphereGeometry(5, 128, 128);
+            const material = new THREE.MeshPhongMaterial({
+                map: earthTexture,
+                bumpMap: bumpMap,
+                bumpScale: 0.05,
+                specularMap: specMap,
+                specular: new THREE.Color('grey'),
+                shininess: 50,
+                transparent: false, // Changed to false
+                opacity: 1,
+                depthWrite: true
+            });
+
+            globe = new THREE.Mesh(geometry, material);
+            globe.renderOrder = 0; // Ensure globe renders first
+            
+            // Add atmosphere effect
+            const atmosphereGlow = createAtmosphereEffect();
+            globe.add(atmosphereGlow);
+            
+            // Add clouds layer
+            const cloudTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png');
+            const cloudGeometry = new THREE.SphereGeometry(5.05, 128, 128);
+            const cloudMaterial = new THREE.MeshPhongMaterial({
+                map: cloudTexture,
+                transparent: true,
+                opacity: 0.4
+            });
+            const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+            globe.add(clouds);
+
+            scene.add(globe);
+
+            // Enhanced camera and controls setup
+            camera.position.z = 15;
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.5;
+            controls.minDistance = 8;
+            controls.maxDistance = 30;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.5;
+
+            tooltip = document.querySelector('.tooltip');
+            createLegend();
+        }
+
+        function generateGradientBackground() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2;
+            canvas.height = 2;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#000614');
+            gradient.addColorStop(1, '#001428');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            return canvas;
+        }
+
+        function createAtmosphereEffect() {
+            const atmosphereGeometry = new THREE.SphereGeometry(5.3, 128, 128);
+            const atmosphereMaterial = new THREE.ShaderMaterial({
+                transparent: true,
+                side: THREE.BackSide,
+                uniforms: {
+                    glowColor: { value: new THREE.Color(0x6699ff) },
+                    viewVector: { value: camera.position }
+                },
+                vertexShader: `
+                    uniform vec3 viewVector;
+                    varying float intensity;
+                    void main() {
+                        vec3 vNormal = normalize(normalMatrix * normal);
+                        vec3 vNormel = normalize(normalMatrix * viewVector);
+                        intensity = pow(0.72 - dot(vNormal, vNormel), 2.0);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 glowColor;
+                    varying float intensity;
+                    void main() {
+                        vec3 glow = glowColor * intensity;
+                        gl_FragColor = vec4(glow, intensity * 0.6);
+                    }
+                `
+            });
+
+            return new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        }
+
+        function loadData() {
+            Promise.all([
+                fetch('countries.json').then(response => response.json()),
+                fetch('countries_with_pop_2020.json').then(response => response.json())
+            ]).then(([countries, population]) => {
+                countriesData = countries;
+                populationData = population;
+                createCountryLines(countries);
+                createPopulationPoints(population);
+                updatePopulationTable(population);
+                document.getElementById('loading').style.display = 'none';
+            }).catch(error => console.error('Error loading data:', error));
+        }
+
+        function latLongToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * Math.PI / 180;
+            const theta = (lon + 180) * Math.PI / 180;
+
+            return new THREE.Vector3(
+                -radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+        }
+
+        function createCountryLines(data) {
+            const lines = new THREE.Group();
+            const radius = 5.02;
+            
+            console.log('Creating country borders...');
+
+            data.features.forEach(feature => {
+                if (!feature.geometry) return;
+                
+                try {
+                    if (feature.geometry.type === 'Polygon') {
+                        feature.geometry.coordinates.forEach(ring => {
+                            drawLine(ring, lines, radius);
+                        });
+                    } else if (feature.geometry.type === 'MultiPolygon') {
+                        feature.geometry.coordinates.forEach(polygon => {
+                            polygon.forEach(ring => {
+                                drawLine(ring, lines, radius);
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error processing feature:', feature, error);
+                }
+            });
+
+            // Updated material settings
+            const material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                transparent: false, // Changed to false
+                opacity: 1,
+                linewidth: 1,
+                depthWrite: true,
+                depthTest: true
+            });
+
+            lines.traverse(line => {
+                if (line instanceof THREE.Line) {
+                    line.material = material;
+                    line.renderOrder = 1; // Ensure lines render on top
+                }
+            });
+
+            // Adjust position to prevent z-fighting
+            lines.position.y += 0.001;
+            lines.renderOrder = 1;
+            
+            scene.add(lines);
+            
+            // Store lines in a global variable for later access
+            window.countryLines = lines;
+        }
+
+        // Helper function to draw a single line
+        function drawLine(coordinates, lines, radius) {
+            if (!coordinates || coordinates.length < 2) return;
+
+            const points = [];
+            coordinates.forEach(coord => {
+                if (Array.isArray(coord) && coord.length >= 2) {
+                    // GeoJSON coordinates are [longitude, latitude]
+                    const vector = latLongToVector3(coord[1], coord[0], radius);
+                    points.push(vector);
+                }
+            });
+
+            // Close the loop by adding the first point again
+            if (points.length > 2) {
+                points.push(points[0]);
+            }
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry);
+            lines.add(line);
+        }
+
+        function getPopulationClass(population) {
+            const classes = [
+                { max: 1000000, name: "Very Small", color: 0x4575b4 },      // Blue
+                { max: 5000000, name: "Small", color: 0x74add1 },           // Light Blue
+                { max: 10000000, name: "Medium Small", color: 0xabd9e9 },   // Very Light Blue
+                { max: 25000000, name: "Medium", color: 0xfee090 },         // Light Yellow
+                { max: 50000000, name: "Medium Large", color: 0xfdae61 },   // Orange
+                { max: 100000000, name: "Large", color: 0xf46d43 },         // Dark Orange
+                { max: Infinity, name: "Very Large", color: 0xd73027 }      // Red
+            ];
+            
+            return classes.find(c => population <= c.max);
+        }
+
+        function interpolateColor(value, population) {
+            const populationClass = getPopulationClass(population);
+            const baseColor = new THREE.Color(populationClass.color);
+            
+            // Add slight variation within each class
+            const variation = (value * 0.2) - 0.1; // ±10% variation
+            const adjustedColor = new THREE.Color(
+                Math.max(0, Math.min(1, baseColor.r + variation)),
+                Math.max(0, Math.min(1, baseColor.g + variation)),
+                Math.max(0, Math.min(1, baseColor.b + variation))
+            );
+            
+            return {
+                color: adjustedColor,
+                className: populationClass.name
+            };
+        }
+
+        function createPopulationPoints(data) {
+            const points = new THREE.Group();
+            const maxPop = Math.max(...data.map(f => f.population || 0));
+            const radius = 5.02;
+            const markerOffset = 0.05; // Increased offset from globe surface
+            
+            data.forEach(feature => {
+                if (!feature.population || !feature.LABEL_X || !feature.LABEL_Y) return;
+                
+                // Using LABEL_X and LABEL_Y for coordinates instead of geometry.coordinates
+                const coords = [feature.LABEL_X, feature.LABEL_Y];
+                const population = feature.population;
+                const populationRatio = population / maxPop;
+                const size = Math.max(0.1, Math.sqrt(populationRatio) * 0.4); // Increased minimum size
+                
+                // Calculate position with offset
+                const basePosition = latLongToVector3(coords[1], coords[0], radius);
+                const direction = basePosition.clone().normalize();
+                const position = basePosition.clone().add(direction.multiplyScalar(markerOffset));
+                
+                const colorInfo = interpolateColor(populationRatio, population);
+
+                const pointGroup = new THREE.Group();
+                
+                // Create main marker
+                const hexGeometry = createHexagonalPrism(size * 0.8, size * 0.15); // Even flatter hexagon
+                const material = new THREE.MeshPhongMaterial({
+                    color: colorInfo.color,
+                    emissive: colorInfo.color,
+                    emissiveIntensity: 0.6,
+                    shininess: 100,
+                    specular: new THREE.Color(0xffffff),
+                    transparent: true,
+                    opacity: 0.95,
+                    depthWrite: true,
+                    depthTest: true
+                });
+                
+                const point = new THREE.Mesh(hexGeometry, material);
+                point.renderOrder = 999; // Very high render order
+
+                // Create ring effect
+                const ringGeometry = new THREE.RingGeometry(size * 1.2, size * 1.3, 32);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: colorInfo.color,
+                    transparent: true,
+                    opacity: 0.4,
+                    side: THREE.DoubleSide,
+                    depthWrite: false,
+                    depthTest: false
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.renderOrder = 1000; // Even higher render order
+
+                pointGroup.add(point);
+                pointGroup.add(ring);
+                
+                // Position and orient
+                pointGroup.position.copy(position);
+                
+                // Orient to face outward
+                const normal = position.clone().normalize();
+                pointGroup.lookAt(normal.multiplyScalar(100));
+                pointGroup.rotateX(Math.PI / 2);
+                
+                // Store metadata
+                pointGroup.userData = {
+                    population: population,
+                    name: feature.NAME || feature.country || 'Unknown',
+                    date: '2020',
+                    color: colorInfo.color.getHexString(),
+                    class: colorInfo.className,
+                    animationOffset: Math.random() * Math.PI * 2
+                };
+                
+                points.add(pointGroup);
+            });
+            
+            points.renderOrder = 1000;
+            scene.add(points);
+            window.populationPoints = points;
+
+            // Enhanced tooltip interaction
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            renderer.domElement.addEventListener('mousemove', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(points.children, true);
+
+                if (intersects.length > 0) {
+                    const pointGroup = intersects[0].object.parent;
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = event.clientX + 'px';
+                    tooltip.style.top = event.clientY + 'px';
+                    tooltip.style.borderLeft = `4px solid #${pointGroup.userData.color}`;
+                    tooltip.innerHTML = `
+                        <div>${pointGroup.userData.name}</div>
+                        <div class="population">${pointGroup.userData.population.toLocaleString()}</div>
+                        <div class="date">${pointGroup.userData.date} · ${pointGroup.userData.class}</div>
+                        <div class="ranking">Rank: ${pointGroup.userData.ranking} of ${pointGroup.userData.totalCountries}</div>
+                    `;
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            });
+        }
+
+        // Add this new function to create hexagonal prism geometry
+        function createHexagonalPrism(radius, height) {
+            const geometry = new THREE.CylinderGeometry(radius, radius, height, 6);
+            return geometry;
+        }
+
+        let currentSort = 'desc';
+        let filteredCountries = [];
+
+        function updatePopulationTable(data, searchTerm = '', sort = 'desc') {
+            filteredCountries = data
+                .filter(f => f.population)
+                .filter(country => {
+                    if (!searchTerm) return true;
+                    return (country.NAME || country.country || '').toLowerCase()
+                        .includes(searchTerm.toLowerCase());
+                })
+                .sort((a, b) => {
+                    const comparison = b.population - a.population;
+                    return sort === 'desc' ? comparison : -comparison;
+                });
+
+            const tableBody = document.getElementById('populationTable');
+            tableBody.innerHTML = filteredCountries
+                .map((country, index) => `
+                    <tr data-lat="${country.LABEL_Y}" 
+                        data-lon="${country.LABEL_X}">
+                        <td>${index + 1}</td>
+                        <td>${country.NAME || country.country || 'Unknown'}</td>
+                        <td>${country.population.toLocaleString('fr-FR')}</td>
+                    </tr>
+                `).join('');
+
+            // Add click handlers to rows
+            tableBody.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('click', () => {
+                    // Remove previous selection
+                    tableBody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+                    row.classList.add('selected');
+
+                    const lat = parseFloat(row.dataset.lat);
+                    const lon = parseFloat(row.dataset.lon);
+                    focusOnCountry([lon, lat]);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const sortBtn = document.getElementById('sortBtn');
+            const populationHeader = document.getElementById('populationHeader');
+
+            // Update header class based on sort state
+            function updateSortHeader() {
+                populationHeader.classList.remove('sorted-asc', 'sorted-desc');
+                populationHeader.classList.add(currentSort === 'desc' ? 'sorted-desc' : 'sorted-asc');
+            }
+
+            // Add click handler for the header
+            populationHeader.addEventListener('click', () => {
+                currentSort = currentSort === 'desc' ? 'asc' : 'desc';
+                updateSortHeader();
+                updatePopulationTable(populationData, searchInput.value, currentSort);
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                updatePopulationTable(populationData, e.target.value, currentSort);
+            });
+
+            // Initial sort indicator
+            updateSortHeader();
+        });
+
+        document.getElementById('contextContent').innerHTML = `
+            <p>En 2020, la population mondiale était marquée par d'importantes disparités entre les pays. 
+            Cette visualisation permet d'observer la répartition démographique à l'échelle mondiale.</p>
+            
+            <p>Les variations de taille et de couleur des points représentent l'importance relative 
+            de la population de chaque pays.</p>
+        `;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate clouds
+            if (globe.children[1]) {
+                globe.children[1].rotation.y += 0.0002;
+            }
+            
+            // Update atmosphere shader
+            globe.children[0].material.uniforms.viewVector.value = new THREE.Vector3().subVectors(
+                camera.position,
+                globe.position
+            );
+            
+            // Ensure country lines remain visible
+            if (window.countryLines) {
+                window.countryLines.quaternion.copy(globe.quaternion);
+            }
+            
+            // Animate population points
+            if (window.populationPoints) {
+                const time = performance.now() * 0.001;
+                window.populationPoints.children.forEach(point => {
+                    // Animate only the ring
+                    if (point.children[1]) {
+                        const ring = point.children[1];
+                        const scale = 1 + 0.1 * Math.sin(time * 2 + point.userData.animationOffset);
+                        ring.scale.set(scale, scale, 1);
+                        ring.material.opacity = 0.3 * (1 - (scale - 1) / 0.1);
+                    }
+                });
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function toggleUI() {
+            const uiElements = document.querySelectorAll('.ui-element');
+            const btn = document.querySelector('.toggle-ui-btn');
+            
+            uiElements.forEach(element => {
+                element.classList.toggle('hidden');
+            });
+            
+            btn.textContent = btn.textContent === 'Toggle UI' ? 'Show UI' : 'Toggle UI';
+        }
+
+        function focusOnCountry(coords, duration = 1000) {
+            const pointGroup = findPointGroupForCountry(coords);
+            blinkPoint(pointGroup);
+
+            const point = latLongToVector3(coords[1], coords[0], 15); // Larger radius for camera position
+            const lookAt = latLongToVector3(coords[1], coords[0], 5.2); // Point to look at on globe surface
+
+            // Store initial camera position and quaternion
+            const initialPos = camera.position.clone();
+            const initialRot = camera.quaternion.clone();
+
+            // Calculate target quaternion
+            const targetQuaternion = new THREE.Quaternion();
+            camera.position.copy(point);
+            camera.lookAt(lookAt);
+            targetQuaternion.copy(camera.quaternion);
+
+            // Reset camera position and rotation
+            camera.position.copy(initialPos);
+            camera.quaternion.copy(initialRot);
+
+            // Animate camera movement
+            const startTime = performance.now();
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Smooth easing function
+                const eased = 1 - Math.pow(1 - progress, 3);
+
+                camera.position.lerpVectors(initialPos, point, eased);
+                camera.quaternion.slerpQuaternions(initialRot, targetQuaternion, eased);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function findPointGroupForCountry(coords) {
+            const targetVector = latLongToVector3(coords[1], coords[0], 5.2);
+            let closestPoint = null;
+            let minDistance = Infinity;
+
+            scene.traverse((object) => {
+                if (object.type === 'Group' && object.userData && object.userData.name) {
+                    const distance = object.position.distanceTo(targetVector);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = object;
+                    }
+                }
+            });
+
+            return closestPoint;
+        }
+
+        function blinkPoint(pointGroup) {
+            if (!pointGroup) return;
+
+            const originalColors = [];
+            const blinkColor = new THREE.Color(0xffff00); // Yellow blink color
+
+            // Store original colors
+            pointGroup.children.forEach(child => {
+                if (child.material) {
+                    originalColors.push({
+                        mesh: child,
+                        color: child.material.color.clone(),
+                        emissive: child.material.emissive ? child.material.emissive.clone() : null
+                    });
+                }
+            });
+
+            // Blink animation
+            let startTime = performance.now();
+            const duration = 3000; // 3 seconds
+            const blinkRate = 400; // Blink every 400ms
+
+            function updateBlink() {
+                const elapsed = performance.now() - startTime;
+                const progress = elapsed / duration;
+
+                if (progress < 1) {
+                    // Calculate blink state (on/off)
+                    const blinkState = Math.floor(elapsed / blinkRate) % 2 === 0;
+
+                    pointGroup.children.forEach((child, index) => {
+                        if (child.material) {
+                            if (blinkState) {
+                                child.material.color.copy(blinkColor);
+                                if (child.material.emissive) {
+                                    child.material.emissive.copy(blinkColor);
+                                }
+                            } else {
+                                child.material.color.copy(originalColors[index].color);
+                                if (child.material.emissive) {
+                                    child.material.emissive.copy(originalColors[index].emissive);
+                                }
+                            }
+                        }
+                    });
+
+                    requestAnimationFrame(updateBlink);
+                } else {
+                    // Reset to original colors
+                    originalColors.forEach(({mesh, color, emissive}) => {
+                        mesh.material.color.copy(color);
+                        if (mesh.material.emissive && emissive) {
+                            mesh.material.emissive.copy(emissive);
+                        }
+                    });
+                }
+            }
+
+            requestAnimationFrame(updateBlink);
+        }
+
+        function createLegend() {
+            const legendContent = document.getElementById('legend-content');
+            const classes = [
+                { max: 1000000, name: "Very Small (< 1M)", color: 0x4575b4 },
+                { max: 5000000, name: "Small (1M - 5M)", color: 0x74add1 },
+                { max: 10000000, name: "Medium Small (5M - 10M)", color: 0xabd9e9 },
+                { max: 25000000, name: "Medium (10M - 25M)", color: 0xfee090 },
+                { max: 50000000, name: "Medium Large (25M - 50M)", color: 0xfdae61 },
+                { max: 100000000, name: "Large (50M - 100M)", color: 0xf46d43 },
+                { max: Infinity, name: "Very Large (> 100M)", color: 0xd73027 }
+            ];
+
+            legendContent.innerHTML = classes.map(c => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #${new THREE.Color(c.color).getHexString()}"></div>
+                    <span>${c.name}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
