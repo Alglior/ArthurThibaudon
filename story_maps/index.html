@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Story-Maps Criminalité en EUROPE</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="static/styles/styles.css">
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script defer src="static/scripts/index.js" onerror="console.error('Failed to load script')"></script>
+</head>
+<body>
+    <div class="hero">
+        <img src="crime.png" alt="Hero Background" class="hero-image">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Les différents types de Criminalité en EUROPE</h1>
+            <p>Analyse des tendances et statistiques de la délinquance à travers le continent européen</p>
+        </div>
+    </div>
+
+    <!-- Add author info after hero section -->
+    <div class="author-info">
+        <p class="author">Créateur : THIBAUDON Arthur</p>
+        <p class="date">Publié le <span id="publish-date"></span></p>
+    </div>
+
+    <!-- Change this floating nav to match section IDs -->
+    <nav class="floating-nav">
+        <!-- Change these hrefs to match your actual section IDs -->
+        <a href="#section1" class="active"></a>
+        <a href="#section2"></a>
+        <a href="#section3"></a>
+        <a href="#conclusion"></a>
+        <a href="#documentation"></a>
+    </nav>
+
+    <!-- Make sure all your sections have matching IDs -->
+    <div class="section" id="section1">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Plongez dans l'évolution de la criminalité européenne (2008-2022)</h2>
+                <div class="info-cards-grid">
+                    <div class="info-card">
+                        <div class="info-icon">📊</div>
+                        <h4>Indice de Criminalité</h4>
+                        <p>Cette carte interactive révèle les variations de l'indice de criminalité à travers l'Europe, basée sur les données Eurostat. L'indice s'échelonne de 0 à 100, permettant une comparaison efficace entre pays.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🗺️</div>
+                        <h4>Gradient Nord-Sud</h4>
+                        <p>Les pays nordiques, particulièrement la Suède, affichent des indices plus élevés (en rouge), tandis que l'Europe méridionale présente des taux plus modérés. L'Europe centrale maintient des valeurs intermédiaires.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⏳</div>
+                        <h4>Évolution Temporelle</h4>
+                        <p>La barre chronologique permet d'explorer l'évolution année par année, révélant les dynamiques de la criminalité sur le continent.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <iframe width="100%" height="800px" src="https://studio.foursquare.com/map/public/a45bbdcf-c87b-4f69-9f4d-8ef712a08dc5/embed" frameborder="0" allowfullscreen></iframe>
+                <div id="map1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section2">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Tendances criminelles : Vue d'ensemble européenne</h2>
+                <div class="info-cards-grid">
+                    <div class="info-card">
+                        <div class="info-icon">🏘️</div>
+                        <h4>Disparités Géographiques</h4>
+                        <p>Les zones urbaines des pays nordiques affichent des taux plus élevés (>8 000 pour 100 000 habitants), tandis que les zones périphériques présentent des taux plus faibles (1 000-4 000).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">📈</div>
+                        <h4>Distribution Spatiale</h4>
+                        <p>Un gradient est-ouest est observable, avec des taux généralement plus modérés (4 000-8 000) dans les régions d'Europe centrale.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🔍</div>
+                        <h4>Facteurs d'Influence</h4>
+                        <p>Cette distribution soulève des questions sur l'influence des facteurs socio-économiques et des politiques de sécurité nationales.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <iframe src="../crime_maps/" frameborder="0" allowfullscreen allow="geolocation"></iframe>
+                <div id="map2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section3">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Volume total des crimes recensés en Europe (2008-2022)</h2>
+                <div class="info-cards-grid">
+                    <div class="info-card">
+                        <div class="info-icon">📊</div>
+                        <h4>Volumes Principaux</h4>
+                        <p>La France et l'Allemagne se distinguent avec les volumes les plus élevés (32.04M - 41.81M de crimes), suivies par le Royaume-Uni et l'Italie (12.29M - 32.04M crimes).</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🌍</div>
+                        <h4>Distribution Régionale</h4>
+                        <p>Les pays d'Europe du Nord et centrale montrent des volumes modérés (5.10M - 12.29M), tandis que l'Europe de l'Est et du Sud enregistrent des volumes plus faibles.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⚖️</div>
+                        <h4>Facteurs Contextuels</h4>
+                        <p>Les variations reflètent la taille de la population, l'efficacité des systèmes de signalement, et les différences dans la classification des crimes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <img src="europe.png" alt="Europe Map" class="responsive-image">
+            </div>
+        </div>
+    </div>
+
+    <div class="conclusion-section" id="conclusion">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Conclusion</h2>
+                <p>Cette étude cartographique nous rappelle que la criminalité en Europe est un phénomène complexe qui ne peut être réduit à une simple lecture des chiffres. Les variations observées invitent à une réflexion plus large sur les politiques de sécurité et leur harmonisation à l'échelle européenne.</p>
+            
+                <div class="key-points">
+                    <h3>Points Clés :</h3>
+                    <div class="key-points-grid">
+                        <div class="key-point-card">
+                            <div class="key-point-icon">🌍</div>
+                            <h4>Les disparités Nord-Sud</h4>
+                            <p>L'analyse révèle un contraste marqué entre l'Europe du Nord, qui présente des taux de criminalité plus élevés, et l'Europe du Sud, où les indices sont généralement plus modérés.</p>
+                        </div>
+                        <div class="key-point-card">
+                            <div class="key-point-icon">📊</div>
+                            <h4>L'importance du contexte</h4>
+                            <p>Les chiffres absolus de criminalité montrent une concentration dans les grands pays, mais l'indice relatif offre une perspective différente.</p>
+                        </div>
+                        <div class="key-point-card">
+                            <div class="key-point-icon">⏳</div>
+                            <h4>L'évolution temporelle</h4>
+                            <p>La période 2008-2022 montre des dynamiques variables selon les régions, reflétant les changements sociétaux et politiques.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="arrow-down"></div>
+        <span>Plus d'informations</span>
+    </div>
+
+    <div class="documentation-section" id="documentation">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Documentation Technique</h2>
+                <p>Pour plus de détails techniques sur cette étude, veuillez consulter notre documentation complète.</p>
+                <a href="documentation_technique.pdf" class="doc-link" target="_blank">Télécharger la documentation technique (PDF)</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
