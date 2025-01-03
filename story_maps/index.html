@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Story-Maps Criminalité en EUROPE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -34,6 +35,7 @@
         <!-- Change these hrefs to match your actual section IDs -->
         <a href="#section1" class="active"></a>
         <a href="#section2"></a>
+        <a href="#section4"></a>
         <a href="#section3"></a>
         <a href="#conclusion"></a>
         <a href="#documentation"></a>
@@ -63,7 +65,10 @@
                 </div>
             </div>
             <div class="map-container">
-                <iframe width="100%" height="800px" src="https://studio.foursquare.com/map/public/a45bbdcf-c87b-4f69-9f4d-8ef712a08dc5/embed" frameborder="0" allowfullscreen></iframe>
+                <iframe width="100%" height="800px" src="https://studio.foursquare.com/map/public/a45bbdcf-c87b-4f69-9f4d-8ef712a08dc5/embed" 
+                        frameborder="0" 
+                        allowfullscreen
+                        charset="UTF-8"></iframe>
                 <div id="map1"></div>
             </div>
         </div>
@@ -92,8 +97,40 @@
                 </div>
             </div>
             <div class="map-container">
-                <iframe src="../crime_maps/" frameborder="0" allowfullscreen allow="geolocation"></iframe>
+                <iframe src="../crime_maps/" 
+                        frameborder="0" 
+                        allowfullscreen 
+                        allow="geolocation"
+                        charset="UTF-8"></iframe>
                 <div id="map2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section4">
+        <div class="container">
+            <div class="text-content" data-aos="fade-up">
+                <h2>Classement des pays par taux de criminalité</h2>
+                <div class="info-cards-grid">
+                    <div class="info-card">
+                        <div class="info-icon">🏆</div>
+                        <h4>Classement Dynamique</h4>
+                        <p>Explorez le classement interactif des pays européens selon leurs taux de criminalité et différents indicateurs.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">📊</div>
+                        <h4>Comparaison</h4>
+                        <p>Visualisez et comparez facilement les performances relatives de chaque pays en matière de sécurité.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container">
+                <iframe src="../crime_maps/rankings.html" 
+                        width="100%" 
+                        height="800px" 
+                        frameborder="0" 
+                        allowfullscreen
+                        charset="UTF-8"></iframe>
             </div>
         </div>
     </div>
@@ -166,7 +203,10 @@
             <div class="text-content" data-aos="fade-up">
                 <h2>Documentation Technique</h2>
                 <p>Pour plus de détails techniques sur cette étude, veuillez consulter notre documentation complète.</p>
-                <a href="documentation_technique.pdf" class="doc-link" target="_blank">Télécharger la documentation technique (PDF)</a>
+                <a href="documentation_technique.pdf" 
+                   class="doc-link" 
+                   target="_blank" 
+                   charset="UTF-8">Télécharger la documentation technique (PDF)</a>
             </div>
         </div>
     </div>
