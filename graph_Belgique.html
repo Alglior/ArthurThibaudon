@@ -1,0 +1,663 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Crime Trends - Belgique</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            :root {
+                --primary-color: #3b82f6;
+                --primary-hover: #2563eb;
+                --background-color: #f8fafc;
+                --border-color: #e2e8f0;
+                --text-color: #1e293b;
+                --shadow-color: rgba(0, 0, 0, 0.06);
+                --transition-speed: 0.3s;
+            }
+            
+            body, html { 
+                margin: 0; 
+                padding: 0; 
+                height: 100%; 
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background-color: var(--background-color);
+                color: var(--text-color);
+            }
+            
+            .container { 
+                width: 100%; 
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                padding: 24px; 
+                box-sizing: border-box; 
+                gap: 24px;
+                max-width: 2560px;
+                margin: 0 auto;
+            }
+            
+            .controls { 
+                background: white; 
+                padding: 24px; 
+                border-radius: 16px; 
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .controls:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .controls-row {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+            
+            .view-controls {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .content {
+                flex: 1;
+                min-height: 0;
+                overflow: auto;
+                padding-right: 20px;
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-color) var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .content::-webkit-scrollbar-track {
+                background: var(--background-color);
+            }
+            
+            .content::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 4px;
+            }
+            
+            .category-section {
+                background: white;
+                border-radius: 16px;
+                padding: 32px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 6px var(--shadow-color);
+                transition: all var(--transition-speed);
+            }
+            
+            .category-section:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .category-title {
+                font-size: 1.75rem;
+                font-weight: 600;
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                border-bottom: 2px solid var(--border-color);
+                color: var(--text-color);
+            }
+            
+            .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+                gap: 32px;
+            }
+            
+            .chart-wrapper { 
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                height: 600px;
+                position: relative;
+                transition: all var(--transition-speed);
+            }
+            
+            .chart-wrapper:hover {
+                box-shadow: 0 6px 12px var(--shadow-color);
+            }
+            
+            .chart-container {
+                position: absolute;
+                top: 24px;
+                left: 24px;
+                right: 24px;
+                bottom: 24px;
+            }
+            
+            select { 
+                padding: 10px 16px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                font-size: 15px;
+                background: white;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                color: var(--text-color);
+                min-width: 160px;
+            }
+            
+            select:hover {
+                border-color: var(--primary-color);
+            }
+            
+            select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            
+            .radio-group {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+            }
+            
+            .radio-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 15px;
+                transition: all var(--transition-speed);
+            }
+            
+            .radio-label:hover {
+                color: var(--primary-color);
+            }
+            
+            .category-buttons { 
+                display: flex; 
+                gap: 16px; 
+                flex-wrap: wrap;
+                margin-top: 20px;
+            }
+            
+            button { 
+                padding: 10px 20px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                background: white;
+                color: var(--text-color);
+                font-size: 15px;
+                cursor: pointer;
+                transition: all var(--transition-speed);
+                font-weight: 500;
+            }
+            
+            button:hover {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            button.active { 
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+            
+            @media (min-width: 2000px) {
+                .charts-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+                
+                .chart-wrapper {
+                    height: 600px;
+                }
+            }
+            
+            @media (max-width: 1400px) {
+                .charts-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            
+            @media (max-width: 1200px) {
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .container {
+                    padding: 16px;
+                }
+                
+                .controls {
+                    padding: 20px;
+                }
+                
+                .chart-wrapper {
+                    height: 400px;
+                }
+                
+                .category-title {
+                    font-size: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="controls">
+                <div class="controls-row">
+                    <select id="chartType" aria-label="Chart Type">
+                        <option value="lines+markers">Lignes de Tendance</option>
+                        <option value="bar">Graphique en Barres</option>
+                    </select>
+                    
+                    <div class="view-controls">
+                        <div class="radio-group" role="radiogroup" aria-label="View Type">
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="category" checked>
+                                Vue par groupe
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="view" value="individuel">
+                                Crimes individuels
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                 
+                <div class="category-buttons" id="categoryButtons" role="toolbar" aria-label="Crime Categories"></div>
+                              
+            </div>
+            
+            <div class="content">
+                <div id="categoryView">
+                    <div class="chart-wrapper">
+                        <div id="mainChart" class="chart-container"></div>
+                    </div>
+                </div>
+                
+                <div id="individualView" style="display: none;">
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Initialize data and state
+            const data = [{"year": 2008, "Exploitation sexuelle": null, "P\u00e9dopornographie": null, "Homicide intentionnel": 1.91, "Actes contre les syst\u00e8mes informatiques": null, "Agression sexuelle": 70.76, "Vol par effraction": 875.26, "pots-de-vin": null, "Vol qualifi\u00e9": 214.47, "Tentative d'homicide volontaire": 6.39, "Vol": 2303.23, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 139.25, "Vol par effraction de r\u00e9sidences priv\u00e9es": 600.56, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Blanchiment d'argent": null, "Violence sexuelle": 101.05, "Attaque grave": 715.43, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 218.46, "Viol": 30.29, "Corruption": null, "Enl\u00e8vement": 9.5, "Fraude": null}, {"year": 2009, "Vol par effraction": 903.19, "Vol": 2321.45, "Vol par effraction de r\u00e9sidences priv\u00e9es": 645.92, "P\u00e9dopornographie": null, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Agression sexuelle": 69.35, "Blanchiment d'argent": null, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 139.12, "Tentative d'homicide volontaire": 6.94, "Actes contre les syst\u00e8mes informatiques": null, "Vol qualifi\u00e9": 219.3, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 203.72, "Homicide intentionnel": 1.76, "Attaque grave": 722.26, "Violence sexuelle": 98.66, "Corruption": null, "Viol": 29.31, "Fraude": null, "Enl\u00e8vement": 10.04, "Exploitation sexuelle": null, "pots-de-vin": null}, {"year": 2010, "Vol par effraction": 843.13, "Blanchiment d'argent": null, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 183.13, "Fraude": null, "Viol": 30.52, "Enl\u00e8vement": 10.35, "Violence sexuelle": 100.77, "Attaque grave": 717.33, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Actes contre les syst\u00e8mes informatiques": null, "pots-de-vin": null, "Agression sexuelle": 70.25, "Tentative d'homicide volontaire": 7.03, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 136.07, "Vol par effraction de r\u00e9sidences priv\u00e9es": 586.7, "Vol": 2106.61, "Homicide intentionnel": 1.74, "Corruption": null, "Vol qualifi\u00e9": 220.08, "P\u00e9dopornographie": null, "Exploitation sexuelle": null}, {"year": 2011, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 125.67, "Actes contre les syst\u00e8mes informatiques": null, "Homicide intentionnel": 1.95, "P\u00e9dopornographie": null, "Vol qualifi\u00e9": 248.54, "Attaque grave": 716.12, "Violence sexuelle": 102.72, "Fraude": null, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 176.13, "Viol": 30.88, "Corruption": null, "Enl\u00e8vement": 10.85, "Vol par effraction de r\u00e9sidences priv\u00e9es": 636.66, "Vol": 2203.5, "Tentative d'homicide volontaire": 7.8, "Blanchiment d'argent": null, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Exploitation sexuelle": null, "Vol par effraction": 887.4, "pots-de-vin": null, "Agression sexuelle": 71.84}, {"year": 2012, "Tentative d'homicide volontaire": 7.55, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 102.16, "Blanchiment d'argent": null, "Vol par effraction": 923.41, "P\u00e9dopornographie": null, "Agression sexuelle": 66.08, "pots-de-vin": null, "Vol qualifi\u00e9": 230.81, "Vol par effraction de r\u00e9sidences priv\u00e9es": 681.76, "Corruption": null, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 155.14, "Enl\u00e8vement": 10.68, "Viol": 30.69, "Violence sexuelle": 96.77, "Attaque grave": 651.76, "Fraude": null, "Vol": 2144.43, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Exploitation sexuelle": null, "Actes contre les syst\u00e8mes informatiques": null, "Homicide intentionnel": 1.86}, {"year": 2013, "Vol par effraction": 895.33, "pots-de-vin": null, "Agression sexuelle": 34.16, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Homicide intentionnel": 1.83, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 102.31, "Blanchiment d'argent": null, "Vol qualifi\u00e9": 204.98, "P\u00e9dopornographie": null, "Actes contre les syst\u00e8mes informatiques": null, "Exploitation sexuelle": null, "Fraude": null, "Vol par effraction de r\u00e9sidences priv\u00e9es": 676.25, "Violence sexuelle": 102.13, "Attaque grave": 624.87, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 141.5, "Corruption": null, "Enl\u00e8vement": 10.42, "Viol": 29.97, "Tentative d'homicide volontaire": 7.26, "Vol": 2007.85}, {"year": 2014, "P\u00e9dopornographie": null, "Actes contre les syst\u00e8mes informatiques": null, "pots-de-vin": null, "Agression sexuelle": 33.17, "Tentative d'homicide volontaire": 7.59, "Vol": 1864.29, "Vol par effraction de r\u00e9sidences priv\u00e9es": 650.0, "Blanchiment d'argent": null, "Vol par effraction": 862.36, "Exploitation sexuelle": null, "Vol qualifi\u00e9": 196.12, "Homicide intentionnel": 1.88, "Fraude": null, "Violence sexuelle": 61.69, "Corruption": null, "Enl\u00e8vement": 10.29, "Viol": 28.51, "Attaque grave": 629.75, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 141.16, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 493.09, "Participation \u00e0 un groupe criminel organis\u00e9": null}, {"year": 2015, "Participation \u00e0 un groupe criminel organis\u00e9": null, "Exploitation sexuelle": null, "Actes contre les syst\u00e8mes informatiques": null, "Agression sexuelle": 32.54, "pots-de-vin": null, "Vol": 2196.73, "Tentative d'homicide volontaire": 7.83, "Vol par effraction": 816.58, "Blanchiment d'argent": null, "Vol par effraction de r\u00e9sidences priv\u00e9es": 584.8, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 468.59, "Homicide intentionnel": 2.06, "P\u00e9dopornographie": null, "Vol qualifi\u00e9": 180.45, "Enl\u00e8vement": 10.42, "Corruption": null, "Attaque grave": 555.13, "Fraude": null, "Viol": 28.75, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 172.43, "Violence sexuelle": 61.3}, {"year": 2016, "Vol qualifi\u00e9": 165.13, "Actes contre les syst\u00e8mes informatiques": 32.36, "Exploitation sexuelle": 22.19, "P\u00e9dopornographie": 11.7, "pots-de-vin": 0.85, "Homicide intentionnel": 1.55, "Agression sexuelle": 38.8, "Participation \u00e0 un groupe criminel organis\u00e9": 2.14, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 491.38, "Vol par effraction de r\u00e9sidences priv\u00e9es": 489.49, "Violence sexuelle": 69.24, "Vol": 2055.54, "Tentative d'homicide volontaire": 7.79, "Vol par effraction": 698.01, "Blanchiment d'argent": 7.8, "Fraude": 491.53, "Viol": 30.44, "Attaque grave": 556.84, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 154.18, "Enl\u00e8vement": 10.62, "Corruption": 45.6}, {"year": 2017, "Corruption": 40.49, "Enl\u00e8vement": 10.31, "Viol": 32.83, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 139.58, "Attaque grave": 552.89, "Violence sexuelle": 76.06, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 513.17, "Fraude": 510.89, "Vol par effraction de r\u00e9sidences priv\u00e9es": 461.0, "Vol": 1969.42, "pots-de-vin": 0.88, "Blanchiment d'argent": 7.97, "Agression sexuelle": 43.23, "Vol par effraction": 662.02, "Tentative d'homicide volontaire": 8.55, "Participation \u00e0 un groupe criminel organis\u00e9": 2.51, "Vol qualifi\u00e9": 155.44, "Homicide intentionnel": 1.74, "P\u00e9dopornographie": 15.23, "Actes contre les syst\u00e8mes informatiques": 35.1, "Exploitation sexuelle": 25.12}, {"year": 2018, "pots-de-vin": 0.85, "Vol": 1948.04, "Vol par effraction de r\u00e9sidences priv\u00e9es": 450.38, "Fraude": 579.47, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 524.5, "Violence sexuelle": 76.65, "Viol": 33.93, "Attaque grave": 565.92, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 123.02, "Corruption": 41.49, "Exploitation sexuelle": 25.98, "Participation \u00e0 un groupe criminel organis\u00e9": 2.31, "Tentative d'homicide volontaire": 9.01, "Vol par effraction": 624.43, "Blanchiment d'argent": 11.88, "P\u00e9dopornographie": 16.45, "Homicide intentionnel": 1.68, "Agression sexuelle": 42.72, "Vol qualifi\u00e9": 144.61, "Enl\u00e8vement": null, "Actes contre les syst\u00e8mes informatiques": 47.91}, {"year": 2019, "Actes contre les syst\u00e8mes informatiques": 57.2, "Enl\u00e8vement": null, "pots-de-vin": 0.87, "P\u00e9dopornographie": 23.14, "Homicide intentionnel": 1.28, "Agression sexuelle": 47.29, "Vol par effraction": 576.53, "Participation \u00e0 un groupe criminel organis\u00e9": 2.69, "Blanchiment d'argent": 20.73, "Tentative d'homicide volontaire": 8.95, "Violence sexuelle": 84.13, "Vol": 1985.09, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 556.46, "Vol par effraction de r\u00e9sidences priv\u00e9es": 417.84, "Exploitation sexuelle": 32.82, "Fraude": 709.45, "Viol": 36.85, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 110.78, "Attaque grave": 569.66, "Corruption": 42.33, "Vol qualifi\u00e9": 142.26}, {"year": 2020, "Actes contre les syst\u00e8mes informatiques": 81.84, "Corruption": 37.6, "Agression sexuelle": 47.46, "Enl\u00e8vement": null, "Vol qualifi\u00e9": 103.01, "P\u00e9dopornographie": 18.4, "Participation \u00e0 un groupe criminel organis\u00e9": 2.79, "Homicide intentionnel": 1.3, "pots-de-vin": 0.63, "Blanchiment d'argent": 52.88, "Tentative d'homicide volontaire": 8.83, "Vol par effraction": 413.69, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 79.23, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 536.34, "Vol par effraction de r\u00e9sidences priv\u00e9es": 294.78, "Vol": 1363.3, "Violence sexuelle": 81.56, "Fraude": 830.84, "Attaque grave": 486.94, "Viol": 34.1, "Exploitation sexuelle": 31.85}, {"year": 2021, "Actes contre les syst\u00e8mes informatiques": 76.48, "Exploitation sexuelle": 32.92, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 81.65, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 488.46, "Attaque grave": 516.5, "Viol": 38.44, "Corruption": 42.09, "Fraude": 880.81, "Vol par effraction de r\u00e9sidences priv\u00e9es": 292.37, "Participation \u00e0 un groupe criminel organis\u00e9": 4.5, "Violence sexuelle": 91.11, "Vol": 1445.01, "Vol qualifi\u00e9": 100.11, "Enl\u00e8vement": null, "Agression sexuelle": 52.66, "P\u00e9dopornographie": 15.58, "Tentative d'homicide volontaire": 9.11, "Blanchiment d'argent": 55.54, "pots-de-vin": 0.78, "Homicide intentionnel": 1.33, "Vol par effraction": 397.58}, {"year": 2022, "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci": 92.17, "Actes contre les syst\u00e8mes informatiques": 82.15, "Exploitation sexuelle": 18.18, "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s": 484.04, "Fraude": 977.18, "Viol": 37.03, "Attaque grave": 560.21, "Participation \u00e0 un groupe criminel organis\u00e9": 2.94, "Vol": 1686.0, "Violence sexuelle": 92.04, "Vol par effraction de r\u00e9sidences priv\u00e9es": 336.8, "Vol par effraction": 445.0, "pots-de-vin": 0.59, "Blanchiment d'argent": 35.2, "Tentative d'homicide volontaire": 10.29, "Homicide intentionnel": 1.54, "Agression sexuelle": 55.01, "P\u00e9dopornographie": null, "Vol qualifi\u00e9": 104.38, "Enl\u00e8vement": null, "Corruption": 43.21}];
+            const categories = {"Crimes violents": ["Homicide intentionnel", "Tentative d'homicide volontaire", "Attaque grave", "Violence sexuelle", "Agression sexuelle", "Viol", "Exploitation sexuelle"], "Crimes contre la propri\u00e9t\u00e9": ["Vol", "Vol par effraction", "Vol par effraction de r\u00e9sidences priv\u00e9es", "Vol d'un v\u00e9hicule motoris\u00e9 ou de pi\u00e8ces de celui-ci", "Vol qualifi\u00e9", "Fraude"], "Crime organis\u00e9": ["Participation \u00e0 un groupe criminel organis\u00e9", "Blanchiment d'argent", "Corruption", "Actes illicites impliquant des drogues ou des pr\u00e9curseurs contr\u00f4l\u00e9s"], "Cyber et autres": ["Actes contre les syst\u00e8mes informatiques", "P\u00e9dopornographie", "Enl\u00e8vement", "pots-de-vin"]};
+            let currentCategory = Object.keys(categories)[0];
+            let currentType = 'lines+markers';
+            
+            
+function createLayout(title) {
+  return {
+    title: {
+      text: title,
+      font: {
+        size: 20,
+        color: '#1e293b',
+        weight: 600
+      }
+    },
+    autosize: true,
+    margin: { t: 60, l: 70, r: 150, b: 60 },
+    plot_bgcolor: 'white',
+    paper_bgcolor: 'white',
+    yaxis: {
+      title: 'Rate per 100,000 inhabitants',
+      zeroline: true,
+      zerolinecolor: '#94a3b8',
+      zerolinewidth: 1,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 },
+      tickformat: '.1f'
+    },
+    xaxis: {
+      title: 'Year',
+      showspikes: true,
+      spikemode: 'across',
+      spikesnap: 'cursor',
+      spikecolor: '#94a3b8',
+      spikethickness: 2,
+      gridcolor: '#f1f5f9',
+      titlefont: { size: 16 },
+      tickfont: { size: 14 }
+    },
+    hovermode: 'x unified',  // Back to unified mode
+    hoverlabel: {
+      align: 'left',
+      bgcolor: 'white',  // Solid white background
+      bordercolor: '#64748b',  // Darker border
+      borderwidth: 1,
+      font: { 
+        size: 13,
+        color: '#1e293b'  // Darker text
+      },
+      namelength: -1
+    },
+    showlegend: true,
+    legend: {
+      font: { size: 12 },
+      bgcolor: 'rgba(255,255,255,0.9)',
+      bordercolor: '#e2e8f0',
+      borderwidth: 1,
+      borderradius: 4
+    },
+    transition: {
+      duration: 500,
+      easing: 'cubic-in-out'
+    }
+  };
+}
+
+function createTrace(crime) {
+  const trace = {
+    x: data.map(d => d.year),
+    y: data.map(d => d[crime]),
+    name: crime,
+    type: currentType === 'lines+markers' ? 'scatter' : 'bar',
+    hovertemplate: `<b>${crime}</b>: %{y:.1f}<extra></extra>`,  // Bold crime name
+    opacity: 0.9,
+  };
+
+  if (currentType === 'lines+markers') {
+    trace.mode = 'lines+markers';
+    trace.line = {
+      width: 3,
+      shape: 'spline',
+      smoothing: 1.3
+    };
+    trace.marker = {
+      size: 8,
+      symbol: 'circle',
+    };
+    trace.connectgaps = true;
+  } else {
+    trace.marker = {
+      line: {
+        width: 1,
+        color: 'white'
+      }
+    };
+  }
+
+  return trace;
+}
+            
+            // Rest of the JavaScript remains the same, just add the new configs
+            
+            // Create buttons with smooth transitions
+            function createButtons() {
+                const container = document.getElementById('categoryButtons');
+                Object.keys(categories).forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.textContent = category;
+                    btn.onclick = () => updateCurrentCategory(category);
+                    if (category === currentCategory) btn.className = 'active';
+                    container.appendChild(btn);
+                });
+            }
+            
+            // Add smooth transitions for view changes
+            function handleViewChange(view) {
+                const categoryView = document.getElementById('categoryView');
+                const individualView = document.getElementById('individualView');
+                
+                categoryView.style.transition = 'opacity 0.3s ease-in-out';
+                individualView.style.transition = 'opacity 0.3s ease-in-out';
+                
+                if (view === 'category') {
+                    individualView.style.opacity = 0;
+                    setTimeout(() => {
+                        individualView.style.display = 'none';
+                        categoryView.style.display = 'block';
+                        setTimeout(() => {
+                            categoryView.style.opacity = 1;
+                            updateCategoryView();
+                        }, 50);
+                    }, 300);
+                } else {
+                    categoryView.style.opacity = 0;
+                    setTimeout(() => {
+                        categoryView.style.display = 'none';
+                        individualView.style.display = 'block';
+                        setTimeout(() => {
+                            individualView.style.opacity = 1;
+                            updateIndividualView();
+                        }, 50);
+                    }, 300);
+                }
+                
+                localStorage.setItem('preferredView', view);
+            }
+            
+            // Initialize event listeners and state
+            window.addEventListener('load', () => {
+                const savedChartType = localStorage.getItem('preferredChartType');
+                const savedView = localStorage.getItem('preferredView');
+                const savedCategory = localStorage.getItem('preferredCategory');
+                
+                // Enhanced initialization with smooth transitions
+                document.body.style.opacity = '0';
+                
+                // Set chart type with animation
+                if (savedChartType) {
+                    currentType = savedChartType;
+                    document.getElementById('chartType').value = savedChartType;
+                }
+                
+                // Set view with animation
+                if (savedView) {
+                    const viewRadio = document.querySelector(`input[name="view"][value="${savedView}"]`);
+                    if (viewRadio) {
+                        viewRadio.checked = true;
+                    }
+                }
+                
+                // Set category
+                if (savedCategory && categories[savedCategory]) {
+                    currentCategory = savedCategory;
+                }
+                
+                createButtons();
+                
+                // Fade in the entire interface
+                requestAnimationFrame(() => {
+                    document.body.style.transition = 'opacity 0.5s ease-in-out';
+                    document.body.style.opacity = '1';
+                    handleViewChange(savedView || 'category');
+                });
+            });
+            
+            // Enhanced chart type update with smooth transitions
+            function updateChartType(newType) {
+                const oldType = currentType;
+                currentType = newType;
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add transition animation
+                Plotly.animate('mainChart', {
+                    data: [],
+                    layout: {}
+                }, {
+                    transition: {
+                        duration: 500,
+                        easing: 'cubic-in-out'
+                    },
+                    frame: {
+                        duration: 500
+                    }
+                }).then(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                });
+                
+                localStorage.setItem('preferredChartType', newType);
+            }
+            
+            // Enhanced category update with smooth transitions
+            function updateCurrentCategory(category) {
+                const oldCategory = currentCategory;
+                currentCategory = category;
+                
+                // Animate button transitions
+                document.querySelectorAll('.category-buttons button').forEach(btn => {
+                    if (btn.textContent === category) {
+                        btn.classList.add('active');
+                        btn.style.transform = 'scale(1.05)';
+                        setTimeout(() => btn.style.transform = 'scale(1)', 200);
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                const view = document.querySelector('input[name="view"]:checked').value;
+                
+                // Add fade transition
+                const content = document.querySelector('.content');
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                    content.style.transition = 'opacity 0.3s ease-in-out';
+                    content.style.opacity = '1';
+                }, 300);
+                
+                localStorage.setItem('preferredCategory', category);
+            }
+            
+            // Enhanced category view update with improved animations
+            function updateCategoryView() {
+                const crimes = categories[currentCategory];
+                const traces = crimes.map(createTrace);
+                
+                const layout = createLayout(`Tendances des crimes en Belgique - ${currentCategory}`);
+                
+                Plotly.newPlot('mainChart', traces, layout, { 
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: `crime_trends_Belgique_${currentCategory}`,
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                });
+            }
+            
+            // Enhanced individual view update with improved animations
+            function updateIndividualView() {
+                const container = document.getElementById('individualView');
+                container.innerHTML = '';
+                container.style.opacity = '0';
+                
+                const crimes = categories[currentCategory];
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.textContent = currentCategory;
+                section.appendChild(title);
+                
+                const grid = document.createElement('div');
+                grid.className = 'charts-grid';
+                
+                crimes.forEach((crime, index) => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'chart-wrapper';
+                    wrapper.style.opacity = '0';
+                    wrapper.style.transform = 'translateY(20px)';
+                    
+                    const chartDiv = document.createElement('div');
+                    chartDiv.id = `chart_${crime.replace(/ /g, '_')}`;
+                    chartDiv.className = 'chart-container';
+                    wrapper.appendChild(chartDiv);
+                    grid.appendChild(wrapper);
+                    
+                    const trace = createTrace(crime);
+                    
+                    // Stagger the animation of individual charts
+                    setTimeout(() => {
+                        Plotly.newPlot(chartDiv, [trace],
+                            createLayout(crime),
+                            { 
+                                responsive: true,
+                                displayModeBar: false,
+                                displaylogo: false
+                            }
+                        );
+                        
+                        wrapper.style.transition = 'all 0.5s ease-in-out';
+                        wrapper.style.opacity = '1';
+                        wrapper.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+                
+                section.appendChild(grid);
+                container.appendChild(section);
+                
+                // Fade in the container
+                requestAnimationFrame(() => {
+                    container.style.transition = 'opacity 0.5s ease-in-out';
+                    container.style.opacity = '1';
+                });
+            }
+            
+            // Enhanced resize handler with debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const view = document.querySelector('input[name="view"]:checked').value;
+                    if (view === 'category') {
+                        updateCategoryView();
+                    } else {
+                        updateIndividualView();
+                    }
+                }, 250);
+            });
+            
+            // Add smooth transitions for color theme changes
+            function updateColorTheme(isDark) {
+                document.documentElement.style.transition = 'all 0.3s ease-in-out';
+                if (isDark) {
+                    document.documentElement.style.setProperty('--background-color', '#1a1a1a');
+                    document.documentElement.style.setProperty('--text-color', '#ffffff');
+                    document.documentElement.style.setProperty('--border-color', '#333333');
+                } else {
+                    document.documentElement.style.setProperty('--background-color', '#f8fafc');
+                    document.documentElement.style.setProperty('--text-color', '#1e293b');
+                    document.documentElement.style.setProperty('--border-color', '#e2e8f0');
+                }
+            }
+            
+            // Initialize chart type change listener
+            document.getElementById('chartType').addEventListener('change', (e) => {
+                updateChartType(e.target.value);
+            });
+            
+            // Initialize view change listeners
+            document.querySelectorAll('input[name="view"]').forEach(radio => {
+                radio.addEventListener('change', (e) => handleViewChange(e.target.value));
+            });
+        </script>
+    </body>
+    </html>
+    
