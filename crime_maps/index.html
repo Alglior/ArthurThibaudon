@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Crime Statistics Map</title>
+    <meta charset="UTF-8">
+    <title>Carte des Statistiques sur la Criminalité</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
 body {
@@ -292,21 +293,78 @@ select:disabled {
 }
 
 #speedSlider {
+    -webkit-appearance: none;
     width: 120px;
     height: 4px;
-    -webkit-appearance: none;
     background: #e0e0e0;
     border-radius: 2px;
     outline: none;
+    transition: background 0.3s;
+}
+
+#speedSlider:hover {
+    background: #d5d5d5;
 }
 
 #speedSlider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 16px;
     height: 16px;
     background: #2196F3;
     border-radius: 50%;
     cursor: pointer;
+    transition: background 0.3s;
+    margin-top: -6px; /* Centers the thumb vertically */
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #2196F3;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#speedSlider::-ms-thumb {
+    width: 16px;
+    height: 16px;
+    background: #2196F3;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#speedSlider::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+}
+
+#speedSlider::-moz-range-track {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+}
+
+#speedSlider::-ms-track {
+    height: 4px;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+#speedSlider::-ms-fill-lower {
+    background: #e0e0e0;
+    border-radius: 2px;
+}
+
+#speedSlider::-ms-fill-upper {
+    background: #e0e0e0;
+    border-radius: 2px;
 }
 
 @media (max-width: 768px) {
@@ -557,14 +615,22 @@ select:disabled {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
-</head>
+<style>
+            #map-container {
+                transition: none !imp"ortant;
+            }
+            #map-container * {
+                transition: none !important;
+            }
+        </style>
+        </head>
 <body>
     <div id="title">
         <button id="closeTitle" class="close-btn">
             <i class="fas fa-times"></i>
         </button>
-        <h3>Crime Statistics 2008-2022</h3>
-        <p>Select year to view crime patterns. Circle size and color indicate total crime rates. Gray markers indicate missing data (NA).</p>
+        <h3>Statistiques sur la Criminalité 2008-2022</h3>
+        <p>Sélectionnez l'année pour visualiser les tendances criminelles. La taille et la couleur des cercles indiquent les taux de criminalité totaux. Les marqueurs gris indiquent des données manquantes (NA).</p>
     </div>
 
     <button id="reopenTitle" class="reopen-btn">
@@ -584,28 +650,27 @@ select:disabled {
         <button id="closeLegend">
             <i class="fas fa-times"></i>
         </button>
-        <div class="legend-title">Crime Rate per 100,000 residents</div>
+        <div class="legend-title">Taux de Criminalité pour 100 000 Résidents</div>
         <div class="legend-scale">
             <div class="legend-circle high"></div>
-            <div class="legend-label">High (>8,000)</div>
+            <div class="legend-label">Élevé (>8 000)</div>
         </div>
         <div class="legend-scale">
             <div class="legend-circle medium"></div>
-            <div class="legend-label">Medium (4,000-8,000)</div>
+            <div class="legend-label">Moyen (4 000-8 000)</div>
         </div>
         <div class="legend-scale">
             <div class="legend-circle low"></div>
-            <div class="legend-label">Low (1,000-4,000)</div>
+            <div class="legend-label">Faible (1 000-4 000)</div>
         </div>
         <div class="legend-scale">
             <div class="legend-circle minimal"></div>
-            <div class="legend-label">Minimal (<1,000)</div>
+            <div class="legend-label">Minime (<1 000)</div>
         </div>
-        <div class="legend-scale">
-            <div class="legend-circle na"></div>
-            <div class="legend-label">No Data Available</div>
-        </div>
-        <div class="legend-note">Circle size indicates relative crime volume. Data sourced from official crime statistics.</div>
+        <div class="legend-note">La taille des cercles indique le volume relatif de criminalité. Données provenant de statistiques officielles sur la criminalité.</div>
+        <!--add a url to the data-->
+        <div class="legend-note">Source des données: <a href="https://ec.europa.eu/eurostat/web/products-datasets/-/crim_off_cat" target="_blank">Statistique Eurostats</a></div>
+
     </div>
 
     <button id="showLegend">
@@ -615,21 +680,21 @@ select:disabled {
     <div id="controlPanel" class="closed">
         <button id="toggleButton" class="closed">
             <i class="fas fa-chevron-up"></i>
-            Time Controls
+            Contrôles de Temps
         </button>
         <div id="controlContent">
             <div class="controls-group">
                 <button id="compareButton">
                     <i class="fas fa-clone"></i>
-                    Compare Years
+                    Comparer les années
                 </button>
                 <button id="splitOrientationButton" class="control-button" style="display: none;">
-                    <i class="fas fa-arrows-alt-h"></i> Vertical Split
+                    <i class="fas fa-arrows-alt-h"></i> Division Verticale
                 </button>
             </div>
             <div class="controls-group year-selector active" id="leftYearGroup">
                 <div class="year-select-group">
-                    <span class="year-label">Left Year:</span>
+                    <span class="year-label">Année à gauche :</span>
                     <select id="leftYearSelect" onchange="changeYear('left', this.value)">
                         <option value="2008">2008</option>
                         <option value="2009">2009</option>
@@ -651,7 +716,7 @@ select:disabled {
             </div>
             <div class="controls-group year-selector" id="rightYearGroup">
                 <div class="year-select-group">
-                    <span class="year-label">Right Year:</span>
+                    <span class="year-label">Année à droite :</span>
                     <select id="rightYearSelect" onchange="changeYear('right', this.value)" disabled>
                         <option value="2008">2008</option>
                         <option value="2009">2009</option>
@@ -673,14 +738,14 @@ select:disabled {
             </div>
             <div class="controls-group">
                 <button id="playBtn" class="control-button" onclick="togglePlay()">
-                    <i class="fas fa-play"></i> Play
+                    <i class="fas fa-play"></i> Jouer
                 </button>
                 <button id="stopBtn" class="control-button" onclick="stopYears()" disabled>
-                    <i class="fas fa-stop"></i> Stop
+                    <i class="fas fa-stop"></i> Arrêter
                 </button>
             </div>
             <div class="speed-control">
-                <label for="speedSlider">Speed:</label>
+                <label for="speedSlider">Vitesse :</label>
                 <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
                 <span id="speedValue">1x</span>
             </div>
@@ -756,12 +821,12 @@ function toggleComparisonMode() {
         isHorizontalSplit = false;
         mapContainer.classList.remove('horizontal');
         comparisonDivider.classList.remove('horizontal');
-        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Vertical Split';
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Division Verticale';
     }
 
     compareButton.innerHTML = isComparisonMode ?
-        '<i class="fas fa-compress-alt"></i> Single View' :
-        '<i class="fas fa-clone"></i> Compare Years';
+        '<i class="fas fa-compress-alt"></i> Vue Unique' :
+        '<i class="fas fa-clone"></i> Comparer les années';
 }
 
 // Split orientation toggle
@@ -779,11 +844,11 @@ function toggleSplitOrientation() {
     comparisonDivider.style = '';
 
     if (isHorizontalSplit) {
-        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Horizontal Split';
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Division Horizontale';
         comparisonDivider.style.cursor = 'ns-resize';
         comparisonDivider.style.top = '50%';
     } else {
-        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Vertical Split';
+        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Division Verticale';
         comparisonDivider.style.cursor = 'ew-resize';
         comparisonDivider.style.left = '50%';
     }
@@ -973,21 +1038,41 @@ function stopYears() {
     updateSpeedDisplay();
 }
 
-// Map synchronization
+// Remove or comment out the existing map synchronization code
+// window.addEventListener('message', (event) => {
+//     if (!isComparisonMode) return;
+//     
+//     if (event.data.type === 'mapMove') {
+//         const sourceFrame = event.source;
+//         const targetFrame = sourceFrame === leftFrame.contentWindow ? rightFrame : leftFrame;
+//         
+//         targetFrame.contentWindow.postMessage({
+//             type: 'syncMove',
+//             coordinates: event.data.coordinates,
+//             zoom: event.data.zoom
+//         }, '*');
+//     }
+// });
+
+// Add independent view handling
 window.addEventListener('message', (event) => {
-    if (!isComparisonMode) return;
-    
-    // Handle map movement synchronization
     if (event.data.type === 'mapMove') {
+        // Each frame now handles its own movement independently
+        // No synchronization needed
+        return;
+    }
+    
+    if (event.data.type === 'playbackState') {
         const sourceFrame = event.source;
         const targetFrame = sourceFrame === leftFrame.contentWindow ? rightFrame : leftFrame;
         
-        // Forward the movement to the other frame
-        targetFrame.contentWindow.postMessage({
-            type: 'syncMove',
-            coordinates: event.data.coordinates,
-            zoom: event.data.zoom
-        }, '*');
+        // Only update play state for the source frame
+        if (sourceFrame) {
+            sourceFrame.postMessage({
+                type: 'playbackStateUpdate',
+                isPlaying: event.data.isPlaying
+            }, '*');
+        }
     }
 });
 
