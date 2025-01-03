@@ -33,40 +33,59 @@ body {
 }
 
 .comparison-mode .map-frame {
-    width: 50%;
+    width: 50% !important; /* Force 50-50 split */
 }
 
+/* Update the divider styling */
 .comparison-divider {
     position: absolute;
     width: 20px; /* Increase width for larger clickable area */
     height: 100%;
-    background-color: transparent; /* Make background transparent */
-    left: 50%;
+    background-color: rgba(33, 150, 243, 0.2); /* Light blue background */
+    left: 50% !important; /* Force center position */
     top: 0;
     transform: translateX(-50%);
-    cursor: ew-resize;
+    cursor: default; /* Remove resize cursor */
     display: none;
     z-index: 1001;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none; /* Prevent any interactions */
 }
 
 .comparison-divider::after {
-    content: none; /* Remove existing content */
-}
-
-.comparison-divider .divider-line {
+    content: '';
     position: absolute;
     width: 4px;
     height: 100%;
     background-color: #2196F3;
     left: 50%;
-    top: 0;
     transform: translateX(-50%);
+    transition: all 0.3s ease;
+    opacity: 1;
+}
+
+.comparison-divider.horizontal {
+    width: 100%;
+    height: 20px;
+    cursor: ns-resize;
+    left: 0 !important;
+    top: 50% !important; /* Force center position */
+    transform: translateY(-50%);
+}
+
+.comparison-divider.horizontal::after {
+    width: 100%;
+    height: 4px;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .comparison-divider .divider-handle {
     position: absolute;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     background-color: #2196F3;
     border-radius: 50%;
     top: 50%;
@@ -76,11 +95,14 @@ body {
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 24px;
+    font-size: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1002;
 }
 
 .comparison-divider.active {
     display: block;
+    opacity: 1;
 }
 
 #rightFrame {
@@ -402,8 +424,8 @@ select:disabled {
 
 /* Styles for horizontal split */
 .comparison-mode.horizontal .map-frame {
-    width: 100%;
-    height: 50%;
+    width: 100% !important;
+    height: 50% !important; /* Force 50-50 split */
 }
 
 .comparison-divider.horizontal {
@@ -760,6 +782,10 @@ let interval = null;
 let isPlaying = false;
 let isComparisonMode = false;
 
+// Add these variables near the top with other state variables
+let storedSplitPosition = 50; // Store the split percentage
+let storedSplitOrientation = 'vertical'; // Store the split orientation
+
 // Get DOM elements
 const playBtn = document.getElementById('playBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -801,27 +827,88 @@ compareButton.addEventListener('click', toggleComparisonMode);
 // Variable to track split orientation
 let isHorizontalSplit = false;
 
-function toggleComparisonMode() {
-    isComparisonMode = !isComparisonMode;
-    mapContainer.classList.toggle('comparison-mode');
-    comparisonDivider.classList.toggle('active');
-    rightYearSelect.disabled = !isComparisonMode;
-    splitOrientationButton.style.display = isComparisonMode ? 'flex' : 'none';
-    document.getElementById('rightYearGroup').classList.toggle('active', isComparisonMode);
+function updateDividerHandle() {
+    const handle = comparisonDivider.querySelector('.divider-handle');
+    if (isHorizontalSplit) {
+        handle.style.left = '50%';
+        handle.style.top = '50%';
+        handle.innerHTML = '⋯'; // Horizontal dots
+    } else {
+        handle.style.left = '50%';
+        handle.style.top = '50%';
+        handle.innerHTML = '⋮'; // Vertical dots
+    }
+}
 
-    // Reset frames when exiting comparison mode
-    if (!isComparisonMode) {
-        leftFrame.style.width = '100%';
-        leftFrame.style.height = '100vh';
-        rightFrame.style.width = '100%';
-        rightFrame.style.height = '100vh';
-        comparisonDivider.style.left = '50%';
-        comparisonDivider.style.top = '50%';
-        // Reset split orientation when exiting comparison mode
-        isHorizontalSplit = false;
-        mapContainer.classList.remove('horizontal');
-        comparisonDivider.classList.remove('horizontal');
-        splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Division Verticale';
+function toggleComparisonMode() {
+    if (isComparisonMode) {
+        // Store current split position before exiting comparison mode
+        if (isHorizontalSplit) {
+            storedSplitPosition = (parseFloat(leftFrame.style.height) || 50);
+        } else {
+            storedSplitPosition = (parseFloat(leftFrame.style.width) || 50);
+        }
+        storedSplitOrientation = isHorizontalSplit ? 'horizontal' : 'vertical';
+        
+        // Exiting comparison mode
+        comparisonDivider.classList.add('deactivating');
+        
+        // Wait for transition to complete before removing active class
+        setTimeout(() => {
+            isComparisonMode = false;
+            mapContainer.classList.remove('comparison-mode');
+            comparisonDivider.classList.remove('active', 'deactivating');
+            rightYearSelect.disabled = true;
+            splitOrientationButton.style.display = 'none';
+            document.getElementById('rightYearGroup').classList.remove('active');
+            
+            // Reset frames
+            leftFrame.style.width = '100%';
+            leftFrame.style.height = '100vh';
+            rightFrame.style.width = '100%';
+            rightFrame.style.height = '100vh';
+            comparisonDivider.style.left = '50%';
+            comparisonDivider.style.top = '50%';
+            
+            // Reset split orientation
+            isHorizontalSplit = false;
+            mapContainer.classList.remove('horizontal');
+            comparisonDivider.classList.remove('horizontal');
+            splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Division Verticale';
+            
+            updateDividerHandle();
+        }, 300); // Match the transition duration
+    } else {
+        // Entering comparison mode
+        isComparisonMode = true;
+        mapContainer.classList.add('comparison-mode');
+        comparisonDivider.classList.add('active');
+        rightYearSelect.disabled = false;
+        splitOrientationButton.style.display = 'flex';
+        document.getElementById('rightYearGroup').classList.add('active');
+
+        // Restore previous split orientation and position
+        if (storedSplitOrientation === 'horizontal') {
+            isHorizontalSplit = true;
+            mapContainer.classList.add('horizontal');
+            comparisonDivider.classList.add('horizontal');
+            updateDividerHandle();
+        }
+        
+        // Apply stored split position after a short delay
+        setTimeout(() => {
+            if (isHorizontalSplit) {
+                leftFrame.style.height = `${storedSplitPosition}%`;
+                rightFrame.style.height = `${100 - storedSplitPosition}%`;
+                comparisonDivider.style.top = `${storedSplitPosition}%`;
+                comparisonDivider.style.left = '0';
+            } else {
+                leftFrame.style.width = `${storedSplitPosition}%`;
+                rightFrame.style.width = `${100 - storedSplitPosition}%`;
+                comparisonDivider.style.left = `${storedSplitPosition}%`;
+                comparisonDivider.style.top = '0';
+            }
+        }, 50);
     }
 
     compareButton.innerHTML = isComparisonMode ?
@@ -845,52 +932,35 @@ function toggleSplitOrientation() {
 
     if (isHorizontalSplit) {
         splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Division Horizontale';
-        comparisonDivider.style.cursor = 'ns-resize';
+        comparisonDivider.style.cursor = 'default';
         comparisonDivider.style.top = '50%';
+        comparisonDivider.style.left = '0';
+        leftFrame.style.height = '50%';
+        rightFrame.style.height = '50%';
     } else {
         splitOrientationButton.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Division Verticale';
-        comparisonDivider.style.cursor = 'ew-resize';
+        comparisonDivider.style.cursor = 'default';
         comparisonDivider.style.left = '50%';
+        comparisonDivider.style.top = '0';
+        leftFrame.style.width = '50%';
+        rightFrame.style.width = '50%';
     }
+    
+    updateDividerHandle();
 }
 
 // Draggable divider functionality
 let isDragging = false;
 
-comparisonDivider.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    document.addEventListener('mousemove', onDrag);
-    document.addEventListener('mouseup', stopDrag);
-});
-
+// Replace the onDrag and stopDrag functions with empty functions
 function onDrag(e) {
-    if (!isDragging) return;
-
-    const containerRect = mapContainer.getBoundingClientRect();
-
-    if (isHorizontalSplit) {
-        const percentage = ((e.clientY - containerRect.top) / containerRect.height) * 100;
-        
-        if (percentage >= 20 && percentage <= 80) {
-            leftFrame.style.height = `${percentage}%`;
-            rightFrame.style.height = `${100 - percentage}%`;
-            comparisonDivider.style.top = `${percentage}%`;
-        }
-    } else {
-        const percentage = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-        
-        if (percentage >= 20 && percentage <= 80) {
-            leftFrame.style.width = `${percentage}%`;
-            rightFrame.style.width = `${100 - percentage}%`;
-            comparisonDivider.style.left = `${percentage}%`;
-        }
-    }
+    // Do nothing - divider is not movable
+    return;
 }
 
 function stopDrag() {
-    isDragging = false;
-    document.removeEventListener('mousemove', onDrag);
-    document.removeEventListener('mouseup', stopDrag);
+    // Do nothing - divider is not movable
+    return;
 }
 
 // Function to reset everything to initial state
@@ -1037,22 +1107,6 @@ function stopYears() {
     speedSlider.value = "1";
     updateSpeedDisplay();
 }
-
-// Remove or comment out the existing map synchronization code
-// window.addEventListener('message', (event) => {
-//     if (!isComparisonMode) return;
-//     
-//     if (event.data.type === 'mapMove') {
-//         const sourceFrame = event.source;
-//         const targetFrame = sourceFrame === leftFrame.contentWindow ? rightFrame : leftFrame;
-//         
-//         targetFrame.contentWindow.postMessage({
-//             type: 'syncMove',
-//             coordinates: event.data.coordinates,
-//             zoom: event.data.zoom
-//         }, '*');
-//     }
-// });
 
 // Add independent view handling
 window.addEventListener('message', (event) => {
