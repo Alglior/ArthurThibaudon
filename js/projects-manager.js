@@ -81,9 +81,12 @@ class ProjectsManager {
 
     /**
      * Get featured projects (for homepage)
+     * Limited to 3 projects maximum
      */
     getFeaturedProjects() {
-        return this.projects.filter(project => project.featured);
+        return this.projects
+            .filter(project => project.featured)
+            .slice(0, 3); // Limit to 3 projects maximum
     }
 
     /**
