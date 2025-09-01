@@ -44,7 +44,7 @@
       "link": "globes/globe_pop_2020/globe.html",
       "technologies": ["D3.js", "GeoJSON", "JavaScript", "HTML/CSS"],
       "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
-      "period": "2004",
+      "period": "2020",
       "category": "3d-visualization",
       "featured": true
     },
@@ -56,7 +56,7 @@
       "link": "globes/globe_pop_2023/globe.html",
       "technologies": ["D3.js", "GeoJSON", "JavaScript", "HTML/CSS"],
       "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
-      "period": "2004",
+      "period": "2023",
       "category": "3d-visualization",
       "featured": true
     }
@@ -94,6 +94,7 @@
     }
   ]
 }
+
 
 
 
