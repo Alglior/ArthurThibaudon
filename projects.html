@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="stylesheet" href="styles/styles.css">
+    <title>Projets — Arthur Thibaudon</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h3>Arthur Thibaudon</h3>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html#home" class="nav-link">Accueil</a></li>
+                    <li><a href="index.html#about" class="nav-link">À propos</a></li>
+                    <li><a href="projects.html" class="nav-link active">Projets</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="projects-section">
+            <div class="projects-container">
+                <h1>Mes Projets</h1>
+                <p>Découvrez l'ensemble de mes réalisations en géographie numérique et visualisation de données.</p>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <div class="search-bar-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Rechercher un projet, une technologie...">
+                        <button type="button" class="search-clear" title="Effacer la recherche">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="search-suggestions" id="search-suggestions">
+                        <!-- Search suggestions will be populated by JavaScript -->
+                    </div>
+                    <div class="search-results-count" id="search-results-count">
+                        <!-- Results count will be shown here -->
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div id="filters" class="filters">
+                    <!-- Filters will be rendered by JavaScript -->
+                </div>
+
+                <!-- Results Count -->
+                <div class="results-info">
+                    <span id="results-count"></span>
+                </div>
+
+                <!-- Projects Grid -->
+                <div id="projects-grid" class="projects-grid" aria-live="polite">
+                    <!-- Projects will be rendered by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination" class="pagination" role="navigation" aria-label="Pagination">
+                    <!-- Pagination will be rendered by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Arthur Thibaudon</h3>
+                    <p>Géographe numérique et développeur passionné par l'analyse spatiale et les technologies web.</p>
+                    <div class="footer-social">
+                        <a href="https://linkedin.com/in/arthurthibaudon" target="_blank" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="https://github.com/arthurthibaudon" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="mailto:arthur.thibaudon@example.com" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#about">À propos</a></li>
+                        <li><a href="index.html#projects">Projets</a></li>
+                        <li><a href="projects.html">Tous les projets</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-expertise">
+                    <h4>Expertise</h4>
+                    <ul>
+                        <li>Géographie numérique</li>
+                        <li>Analyse spatiale</li>
+                        <li>Développement web</li>
+                        <li>Visualisation de données</li>
+                        <li>SIG et cartographie</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <div class="footer-contact-info">
+                        <div class="footer-contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>arthur.thibaudon@example.com</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>France</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>Disponible sur demande</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 Arthur Thibaudon. Tous droits réservés.</p>
+                </div>
+                <div class="footer-legal">
+                    <a href="#privacy">Politique de confidentialité</a>
+                    <a href="#terms">Mentions légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Modules -->
+    <script src="js/projects-manager.js"></script>
+    <script src="js/projects-page.js"></script>
+</body>
+</html>
+    </script>
+</body>
+</html>

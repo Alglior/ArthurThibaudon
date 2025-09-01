@@ -1,0 +1,149 @@
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+@media (max-width: 768px) {
+    :root {
+        --section-padding: 60px 0;
+        --header-height: 60px;
+    }
+    
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: var(--header-height);
+        flex-direction: column;
+        background-color: white;
+        width: 100%;
+        text-align: center;
+        transition: var(--transition-normal);
+        box-shadow: var(--shadow-md);
+        border-top: 1px solid var(--border);
+        padding: 2rem 0;
+        gap: 1rem;
+    }
+
+    .nav-menu.active {
+        left: 0;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .hero-cta {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .social-links {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .filters {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .filter-button {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Search Bar Mobile Styles */
+    .search-bar {
+        max-width: 100%;
+        margin: 0 auto 2rem auto;
+    }
+
+    .search-bar input {
+        padding: 0.875rem 2.5rem 0.875rem 2.5rem;
+        font-size: 0.95rem;
+    }
+
+    .search-icon {
+        left: 0.875rem;
+        font-size: 0.9rem;
+    }
+
+    .search-clear {
+        right: 0.875rem;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+    }
+
+    .search-options {
+        right: 2.25rem;
+    }
+
+    .search-suggestions {
+        max-height: 250px;
+    }
+
+    .search-suggestion {
+        padding: 0.625rem 0.875rem;
+    }
+
+    .search-suggestion-title {
+        font-size: 0.875rem;
+    }
+
+    .search-suggestion-category {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-content {
+        padding: 1.5rem;
+    }
+    
+    .project-features {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-item {
+        padding: 1rem;
+    }
+    
+    .projects-section .card-body {
+        padding: 1.25rem;
+    }
+    
+    .projects-section .card-footer {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+    }
+    
+    .projects-section .card-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .projects-section .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .projects-section .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}

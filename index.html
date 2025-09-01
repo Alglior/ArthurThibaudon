@@ -5,368 +5,241 @@
     <link rel="icon" type="image/vnd.icon" href="favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <title>Arthur Thibaudon</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #1e40af;
-            --text: #1f2937;
-            --bg: #f3f4f6;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
-        }
-
-        nav {
-            background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: var(--primary);
-        }
-
-        section {
-            padding: 5rem 2rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .hero {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.5rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .project {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-top: -100px;
-        }
-
-        .project-content {
-            padding: 2rem;
-        }
-
-        .project-image {
-            width: 100%;
-            height: 500px;
-            background: #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .project-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .project h2 {
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-        }
-
-        .project-description {
-            margin-bottom: 2rem;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .feature {
-            background: var(--bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-
-        .feature i {
-            color: var(--primary);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .technologies {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .tech-tag {
-            background: var(--bg);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--primary);
-        }
-
-        .contact {
-            text-align: center;
-            background: white;
-        }
-
-        .contact h2 {
-            margin-bottom: 2rem;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .social-links a {
-            color: var(--text);
-            font-size: 1.5rem;
-            transition: color 0.3s;
-        }
-
-        .social-links a:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .project {
-                margin-top: -50px;
-            }
-
-            .project-image {
-                height: 300px;
-                transition: opacity 0.3s ease;
-            }
-        }
-        .project-link {
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-            display: block;
-        }
-
-        .project-link:hover .project-image {
-            opacity: 0.9;
-            transition: opacity 0.3s ease;
-        }
-
-        .project-link:hover h2 {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/styles.css">
+    <title>Arthur Thibaudon - Géographe Numérique</title>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="#home">Accueil</a></li>
-            <li><a href="#project">Projet</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
-
-    <section id="home" class="hero">
-        <h1>Arthur Thibaudon</h1>
-        <p>Master en Géographie Numérique</p>
-    </section>
-    <section id="project">
-        <div class="project">
-            <a href="story_maps/index.html" class="project-link">
-                <div class="project-image">
-                    <img src="projet_image3.png" alt="StoryMap interactive des crimes en Europe">
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h3>Arthur Thibaudon</h3>
                 </div>
-                <div class="project-content">
-                    <h2>Storymap de la Cartographie de la Criminalité en Europe (2008-2022)</h2>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link">Accueil</a></li>
+                    <li><a href="#about" class="nav-link">À propos</a></li>
+                    <li><a href="#projects" class="nav-link">Projets</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>Arthur Thibaudon</h1>
+                    <p class="hero-subtitle">Master en Géographie Numérique</p>
+                    <p class="hero-description">Spécialisé dans le traitement de données géographiques et le développement de solutions cartographiques interactives</p>
+                    <div class="hero-cta">
+                        <a href="#projects" class="btn btn-primary">Découvrir mes projets</a>
+                        <a href="#contact" class="btn btn-outline">Me contacter</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <div class="container">
+                <h2>À propos</h2>
+                <div class="about-content">
+                    <p>Passionné par l'intersection entre géographie et technologie, je développe des solutions innovantes pour visualiser et analyser des données spatiales complexes. Mon expertise couvre la cartographie interactive, l'analyse géospatiale et le développement web.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="projects">
+            <div class="container">
+                <h2>Mes Projets</h2>
+                <p class="section-subtitle">Découvrez mes réalisations en géographie numérique</p>
+                                <div class="projects-cta">
+                    <a href="projects.html" class="btn btn-outline">Voir tous les projets</a>
+                </div>
+                <div class="projects-grid">
+                    <!-- Projects will be loaded dynamically from JSON -->
+                </div>
+
+
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Me Contacter</h2>
+                <p class="section-subtitle">Intéressé par une collaboration ou souhaitez en savoir plus sur mes projets ?</p>
+                
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p>arthur.univ@proton.me</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>Localisation</h4>
+                                <p>France</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div>
+                                <h4>Formation</h4>
+                                <p>Master en Géographie Numérique</p>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="project-description">
-                        <p>Développement d'une storyMap avec de multiples cartes interactives et graphiques permettant d'explorer et d'analyser l'évolution des différents types de crimes à travers l'Europe sur une période de 14 ans. Cette visualisation offre une perspective unique sur les tendances de la criminalité à l'échelle européenne.</p>
-                    </div>
-
-                    <div class="features">
-                        <div class="feature">
-                            <i class="fas fa-chart-line"></i>
-                            <h3>Analyse Temporelle</h3>
-                            <p>Story Maps, suivi de l'évolution des crimes sur 14 ans (2008-2022)</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-layer-group"></i>
-                            <h3>Classification</h3>
-                            <p>Visualisation par types de crimes</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-globe-europe"></i>
-                            <h3>Couverture</h3>
-                            <p>Données pour l'ensemble des pays européens</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mouse-pointer"></i>
-                            <h3>Interactivité</h3>
-                            <p>Navigation intuitive et filtres dynamiques</p>
-                        </div>
-                    </div>
-
-                    <div class="technologies">
-                        
-                        <span class="tech-tag">Leaflet</span>
-                        <span class="tech-tag">GeoJSON</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">HTML/CSS</span>
+                    <div class="social-links">
+                        <a href="https://github.com/Alglior" aria-label="GitHub" target="_blank" rel="noopener">
+                            <i class="fab fa-github"></i>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://linkedin.com/in/arthur-thibaudon" aria-label="LinkedIn" target="_blank" rel="noopener">
+                            <i class="fab fa-linkedin"></i>
+                            <span>LinkedIn</span>
+                        </a>
                     </div>
                 </div>
-            </a>
-        </div>
-        <section id="project">
-        <div class="project">
-            <a href="crime_maps/index.html" class="project-link">
-                <div class="project-image">
-                    <img src="projet_image1.png" alt="Carte interactive des crimes en Europe">
-                </div>
-                <div class="project-content">
-                    <h2>Cartographie de la Criminalité en Europe (2008-2022)</h2>
-                    
-                    <div class="project-description">
-                        <p>Développement d'une carte interactive permettant d'explorer et d'analyser l'évolution des différents types de crimes à travers l'Europe sur une période de 14 ans. Cette visualisation offre une perspective unique sur les tendances de la criminalité à l'échelle européenne.</p>
-                    </div>
+            </div>
+        </section>
+    </main>
 
-                    <div class="features">
-                        <div class="feature">
-                            <i class="fas fa-chart-line"></i>
-                            <h3>Analyse Temporelle</h3>
-                            <p>Suivi de l'évolution des crimes sur 14 ans (2008-2022)</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-layer-group"></i>
-                            <h3>Classification</h3>
-                            <p>Visualisation par types de crimes</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-globe-europe"></i>
-                            <h3>Couverture</h3>
-                            <p>Données pour l'ensemble des pays européens</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mouse-pointer"></i>
-                            <h3>Interactivité</h3>
-                            <p>Navigation intuitive et filtres dynamiques</p>
-                        </div>
-                    </div>
-
-                    <div class="technologies">
-                        
-                        <span class="tech-tag">Leaflet</span>
-                        <span class="tech-tag">GeoJSON</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">HTML/CSS</span>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Arthur Thibaudon</h3>
+                    <p>Géographe numérique et développeur passionné par l'analyse spatiale et les technologies web.</p>
+                    <div class="footer-social">
+                        <a href="https://linkedin.com/in/arthurthibaudon" target="_blank" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="https://github.com/arthurthibaudon" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="mailto:arthur.thibaudon@example.com" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
                     </div>
                 </div>
-            </a>
-        </div>
-        <section id="project">
-        <div class="project">
-            <a href="globes/globe_pop_2004/globe.html" class="project-link">
-                <div class="project-image">
-                    <img src="projet_image2.png" alt="Carte 3D de la population dans le monde 2004">
+                
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="#home">Accueil</a></li>
+                        <li><a href="#about">À propos</a></li>
+                        <li><a href="#projects">Projets</a></li>
+                        <li><a href="projects.html">Tous les projets</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
                 </div>
-                <div class="project-content">
-                    <h2>Cartographie 3D de la population mondiale en 2004</h2>
-                    
-                    <div class="project-description">
-                        <p>Cette visualisation interactive présente la distribution de la population mondiale en 2004. Chaque point représente la population d'un pays, sa taille et sa couleur indiquant l'importance de sa population.</p>
-                    </div>
-
-                    <div class="features">
-                        <div class="feature">
-                            <i class="fas fa-layer-group"></i>
-                            <h3>Classification</h3>
-                            <p>Visualisation par la population</p>
+                
+                <div class="footer-expertise">
+                    <h4>Expertise</h4>
+                    <ul>
+                        <li>Géographie numérique</li>
+                        <li>Analyse spatiale</li>
+                        <li>Développement web</li>
+                        <li>Visualisation de données</li>
+                        <li>SIG et cartographie</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <div class="footer-contact-info">
+                        <div class="footer-contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>arthur.thibaudon@example.com</span>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-globe-europe"></i>
-                            <h3>Couverture</h3>
-                            <p>Données pour l'ensemble des pays du monde</p>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>France</span>
                         </div>
-                        <div class="feature">
-                            <i class="fas fa-mouse-pointer"></i>
-                            <h3>Interactivité</h3>
-                            <p>Navigation intuitive en 3D</p>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>Disponible sur demande</span>
                         </div>
-                    </div>
-
-                    <div class="technologies">
-                        
-                        <span class="tech-tag">d3js</span>
-                        <span class="tech-tag">GeoJSON</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">HTML/CSS</span>
                     </div>
                 </div>
-            </a>
-        </div>
-    </section>
-
-    <section id="contact" class="contact">
-        <h2>Me Contacter</h2>
-        <p>Intéressé par mon projet ou une collaboration ? N'hésitez pas à me contacter.</p>
-        <div class="social-links">
+            </div>
             
-            <a href="https://github.com/Alglior" aria-label="GitHub"><i class="fab fa-github"></i></a>
-            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 Arthur Thibaudon. Tous droits réservés.</p>
+                </div>
+                <div class="footer-legal">
+                    <a href="#privacy">Politique de confidentialité</a>
+                    <a href="#terms">Mentions légales</a>
+                </div>
+            </div>
         </div>
-    </section>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }));
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active class to navigation based on scroll position
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    <!-- JavaScript Modules -->
+    <script src="js/projects-manager.js"></script>
+    <script src="js/homepage.js"></script>
 </body>
 </html>

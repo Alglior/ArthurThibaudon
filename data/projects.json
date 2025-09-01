@@ -1,0 +1,72 @@
+{
+  "projects": [
+    {
+      "id": "storymap-crime-europe",
+      "title": "Storymap: Criminalité en Europe",
+      "description": "StoryMap interactive des crimes en Europe (2008-2022) avec visualisations dynamiques et analyse temporelle.",
+      "image": "projet_image3.png",
+      "link": "story_maps/index.html",
+      "technologies": ["Leaflet", "GeoJSON", "JavaScript", "HTML/CSS"],
+      "features": ["Analyse Temporelle", "Classification", "Couverture Européenne", "Interface Interactive"],
+      "period": "2008-2022",
+      "category": "storytelling",
+      "featured": true
+    },
+    {
+      "id": "interactive-crime-map",
+      "title": "Carte interactive: Criminalité",
+      "description": "Carte interactive des crimes en Europe (2008-2022) avec filtres avancés et données géospatiales.",
+      "image": "projet_image1.png",
+      "link": "crime_maps/index.html",
+      "technologies": ["Leaflet", "GeoJSON", "JavaScript", "HTML/CSS"],
+      "features": ["Suivi Temporel", "Types de Crimes", "Filtres Dynamiques"],
+      "period": "2008-2022",
+      "category": "geospatial",
+      "featured": true
+    },
+    {
+      "id": "globe-3d-population",
+      "title": "Globe 3D: Population 2004",
+      "description": "Cartographie 3D de la population mondiale en 2004 avec navigation immersive et visualisation proportionnelle.",
+      "image": "projet_image2.png",
+      "link": "globes/globe_pop_2004/globe.html",
+      "technologies": ["D3.js", "GeoJSON", "JavaScript", "HTML/CSS"],
+      "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
+      "period": "2004",
+      "category": "3d-visualization",
+      "featured": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "geospatial",
+      "name": "Géospatial",
+      "description": "Projets de cartographie et analyse géospatiale"
+    },
+    {
+      "id": "3d-visualization",
+      "name": "Visualisation 3D",
+      "description": "Projets de visualisation tridimensionnelle"
+    },
+    {
+      "id": "analysis",
+      "name": "Analyse",
+      "description": "Projets d'analyse de données spatiales"
+    },
+    {
+      "id": "dashboard",
+      "name": "Tableaux de Bord",
+      "description": "Interfaces de visualisation et monitoring"
+    },
+    {
+      "id": "cartography",
+      "name": "Cartographie",
+      "description": "Projets de cartographie thématique"
+    },
+    {
+      "id": "storytelling",
+      "name": "Storytelling",
+      "description": "Projets de narration géographique"
+    }
+  ]
+}
