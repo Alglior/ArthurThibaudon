@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Détails du projet de géographie numérique d'Arthur Thibaudon">
+    <meta name="author" content="Arthur Thibaudon">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Arthur Thibaudon">
+    <meta property="og:title" id="og-title" content="Détails du projet — Arthur Thibaudon">
+    <meta property="og:description" id="og-description" content="Page de détail d'un projet de géographie numérique">
+
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/project-detail.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <title id="page-title">Projet — Arthur Thibaudon</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <h3><a href="index.html" style="text-decoration: none; color: inherit;">Arthur Thibaudon</a></h3>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html#home" class="nav-link">Accueil</a></li>
+                    <li><a href="index.html#about" class="nav-link">À propos</a></li>
+                    <li><a href="projects.html" class="nav-link">Projets</a></li>
+                    <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="project-detail-section">
+            <div class="detail-container">
+                <a href="projects.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour aux projets
+                </a>
+
+                <div id="project-loading" class="loading-message">Chargement du projet...</div>
+                
+                <div id="project-detail-content" class="detail-content" style="display: none;">
+                    <div class="detail-header">
+                        <img id="project-image" src="" alt="" class="detail-project-image">
+                        <div class="detail-title-section">
+                            <h1 id="project-title"></h1>
+                            <p id="project-period" class="project-period-detail"></p>
+                            <div id="project-category-badge" class="category-badge"></div>
+                        </div>
+                    </div>
+
+                    <div class="detail-body">
+                        <div class="detail-main">
+                            <div class="detail-description-section">
+                                <h2>Description</h2>
+                                <p id="project-description" class="detail-description-text"></p>
+                            </div>
+
+                            <div class="detail-features-section">
+                                <h2>Fonctionnalités clés</h2>
+                                <div id="project-features" class="features-grid"></div>
+                            </div>
+
+                            <div class="detail-tech-section">
+                                <h2>Technologies utilisées</h2>
+                                <div id="project-technologies" class="tech-tags-detail"></div>
+                            </div>
+
+                            <div class="detail-action-section">
+                                <a id="project-launch-btn" href="#" target="_blank" class="btn btn-primary btn-launch">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    Lancer le projet
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="project-not-found" class="not-found-message" style="display: none;">
+                    <h2>Projet introuvable</h2>
+                    <p>Le projet que vous cherchez n'existe pas ou a été supprimé.</p>
+                    <a href="projects.html" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour aux projets
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Arthur Thibaudon</h3>
+                    <p>Géographe numérique et développeur passionné par l'analyse spatiale et les technologies web.</p>
+                    <div class="footer-social">
+                        <a href="https://github.com/arthurthibaudon" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="mailto:arthur.thibaudon@example.com" aria-label="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="index.html">Accueil</a></li>
+                        <li><a href="index.html#about">À propos</a></li>
+                        <li><a href="index.html#projects">Projets</a></li>
+                        <li><a href="projects.html">Tous les projets</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-expertise">
+                    <h4>Expertise</h4>
+                    <ul>
+                        <li>Géographie numérique</li>
+                        <li>Analyse spatiale</li>
+                        <li>Développement web</li>
+                        <li>Visualisation de données</li>
+                        <li>SIG et cartographie</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <div class="footer-contact-info">
+                        <div class="footer-contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>arthur.thibaudon@example.com</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>France</span>
+                        </div>
+                        <div class="footer-contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>Disponible sur demande</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 Arthur Thibaudon. Tous droits réservés.</p>
+                </div>
+                <div class="footer-legal">
+                    <a href="#privacy">Politique de confidentialité</a>
+                    <a href="#terms">Mentions légales</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/projects-manager.js"></script>
+    <script src="js/project-detail.js"></script>
+</body>
+</html>

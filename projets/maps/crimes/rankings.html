@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Classements des crimes par pays</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js" defer></script>
+    <link href="css/rankings.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="controls-card">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="yearSelect">Année</label>
+                    <select id="yearSelect">
+                        <option value="2008">2008</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="crimeTypeSelect">Type de crime</label>
+                    <select id="crimeTypeSelect">
+                        <option value="all">Tous les crimes</option>
+                        <optgroup label="Crimes violents">
+                            <option value="Homicide intentionnel">Homicide intentionnel</option>
+                            <option value="Tentative d'homicide volontaire">Tentative d'homicide volontaire</option>
+                            <option value="Attaque grave">Attaque grave</option>
+                            <option value="Violence sexuelle">Violence sexuelle</option>
+                            <option value="Agression sexuelle">Agression sexuelle</option>
+                            <option value="Viol">Viol</option>
+                            <option value="Exploitation sexuelle">Exploitation sexuelle</option>
+                        </optgroup>
+                        <optgroup label="Crimes contre les biens">
+                            <option value="Vol">Vol</option>
+                            <option value="Vol par effraction">Vol par effraction</option>
+                            <option value="Vol par effraction de résidences privées">Vol par effraction de résidences privées</option>
+                            <option value="Vol d'un véhicule motorisé ou de pièces de celui-ci">Vol d'un véhicule motorisé ou de pièces de celui-ci</option>
+                            <option value="Vol qualifié">Vol qualifié</option>
+                            <option value="Fraude">Fraude</option>
+                        </optgroup>
+                        <optgroup label="Crime organisé">
+                            <option value="Participation à un groupe criminel organisé">Participation à un groupe criminel organisé</option>
+                            <option value="Blanchiment d'argent">Blanchiment d'argent</option>
+                            <option value="Corruption">Corruption</option>
+                            <option value="Actes illicites impliquant des drogues ou des précurseurs contrôlés">Actes illicites impliquant des drogues ou des précurseurs contrôlés</option>
+                        </optgroup>
+                        <optgroup label="Cyber et autres">
+                            <option value="Actes contre les systèmes informatiques">Actes contre les systèmes informatiques</option>
+                            <option value="Pédopornographie">Pédopornographie</option>
+                            <option value="Enlèvement">Enlèvement</option>
+                            <option value="pots-de-vin">pots-de-vin</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sortOrder">Ordre de tri</label>
+                    <select id="sortOrder">
+                        <option value="desc">Du plus élevé au plus bas</option>
+                        <option value="asc">Du plus bas au plus élevé</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="updateRankings()" class="button">
+                    <i class="fas fa-sync"></i> Mettre à jour les classements
+                </button>
+            </div>
+        </div>
+
+        <div class="rankings-card">
+            <div class="header">
+                <h1 class="title">Classements des pays</h1>
+                <div class="view-controls">
+                    <button onclick="toggleView()" class="button outline" id="viewToggle">
+                        <i class="fas fa-chart-bar"></i> Passer au graphique
+                    </button>
+                    <div id="animationControls" style="display: none;">
+                        <button onclick="playAnimation()" class="button outline" id="animateButton">
+                            <i class="fas fa-play"></i> Lire l'animation
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="rankingsTable"></div>
+            <div id="rankingsChart" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+
+    <script src="js/crimes_data.js"></script>
+    <script src="js/rankings.js"></script>
+</body>
+</html>

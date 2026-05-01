@@ -375,9 +375,11 @@ class ProjectsPageController {
             </div>`
         ).join('');
 
-        return `
+        const detailLink = `project-detail.html?id=${encodeURIComponent(project.id)}`;
+
+    return `
             <div class="project-card">
-                <a href="${project.link}" class="project-link">
+                <a href="${detailLink}" class="project-link">
                     <div class="card-image">
                         <img src="${project.image}" alt="${project.title}" loading="lazy">
                     </div>
@@ -393,11 +395,6 @@ class ProjectsPageController {
                         <div class="tech-stack">
                             ${techTags}
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <span class="btn">
-                            <i class="fas fa-external-link-alt"></i> Voir le projet
-                        </span>
                     </div>
                 </a>
             </div>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carte des Statistiques sur la Criminalité</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+</head>
+<body>
+    <div id="title">
+        <button id="closeTitle" class="close-btn">
+            <i class="fas fa-times"></i>
+        </button>
+        <h3>Statistiques sur la Criminalité 2008-2022</h3>
+        <p>Sélectionnez l'année pour visualiser les tendances criminelles. La taille et la couleur des cercles indiquent les taux de criminalité totaux. Les marqueurs gris indiquent des données manquantes (NA).</p>
+    </div>
+
+    <button id="reopenTitle" class="reopen-btn">
+        <i class="fas fa-undo"></i>
+    </button>
+
+    <div class="map-container">
+        <iframe id="leftFrame" class="map-frame" src="maps/map_2008.html"></iframe>
+        <div class="comparison-divider">
+            <div class="divider-line"></div>
+            <div class="divider-handle">&#8942;</div>
+        </div>
+        <iframe id="rightFrame" class="map-frame" src="maps/map_2008.html"></iframe>
+    </div>
+    
+    <div class="legend-container">
+        <button id="closeLegend">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="legend-title">Taux de Criminalité pour 100 000 Résidents</div>
+        <div class="legend-scale">
+            <div class="legend-circle high"></div>
+            <div class="legend-label">&E9;lev&eacute; (&gt;8&nbsp;000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle medium"></div>
+            <div class="legend-label">Moyen (4&nbsp;000-8&nbsp;000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle low"></div>
+            <div class="legend-label">Faible (1&nbsp;000-4&nbsp;000)</div>
+        </div>
+        <div class="legend-scale">
+            <div class="legend-circle minimal"></div>
+            <div class="legend-label">Minime (&lt;1&nbsp;000)</div>
+        </div>
+        <div class="legend-note">La taille des cercles indique le volume relatif de criminalit&eacute;. Donn&eacute;es provenant de statistiques officielles sur la criminalit&eacute;.</div>
+        <div class="legend-note">Source des données: <a href="https://ec.europa.eu/eurostat/web/products-datasets/-/crim_off_cat" target="_blank">Statistique Eurostats</a></div>
+
+    </div>
+
+    <button id="showLegend">
+        <i class="fas fa-chart-pie"></i>
+    </button>
+
+    <div id="controlPanel" class="closed">
+        <button id="toggleButton" class="closed">
+            <i class="fas fa-chevron-up"></i>
+            Contrôles de Temps
+        </button>
+        <div id="controlContent">
+            <div class="controls-group">
+                <button id="compareButton">
+                    <i class="fas fa-clone"></i>
+                    Comparer les années
+                </button>
+                <button id="splitOrientationButton" class="control-button" style="display: none;">
+                    <i class="fas fa-arrows-alt-h"></i> Division Verticale
+                </button>
+            </div>
+            <div class="controls-group year-selector active" id="leftYearGroup">
+                <div class="year-select-group">
+                    <span class="year-label">Année à gauche :</span>
+                    <select id="leftYearSelect" onchange="changeYear('left', this.value)">
+                        <option value="2008">2008</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls-group year-selector" id="rightYearGroup">
+                <div class="year-select-group">
+                    <span class="year-label">Année à droite :</span>
+                    <select id="rightYearSelect" onchange="changeYear('right', this.value)" disabled>
+                        <option value="2008">2008</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013</option>
+                        <option value="2014">2014</option>
+                        <option value="2015">2015</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+            </div>
+            <div class="controls-group">
+                <button id="playBtn" class="control-button" onclick="togglePlay()">
+                    <i class="fas fa-play"></i> Jouer
+                </button>
+                <button id="stopBtn" class="control-button" onclick="stopYears()" disabled>
+                    <i class="fas fa-stop"></i> Arrêter
+                </button>
+            </div>
+            <div class="speed-control">
+                <label for="speedSlider">Vitesse :</label>
+                <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1">
+                <span id="speedValue">1x</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/index.js"></script>
+</body>
+</html>

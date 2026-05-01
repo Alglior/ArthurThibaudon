@@ -120,9 +120,11 @@ class HomepageController {
             `;
         }).join('');
 
+        const detailLink = `project-detail.html?id=${encodeURIComponent(project.id)}`;
+
         return `
             <div class="project-card">
-                <a href="${project.link}" class="project-link">
+                <a href="${detailLink}" class="project-link">
                     <div class="project-image">
                         <img src="${project.image}" alt="${project.title}">
                         <div class="project-overlay">
