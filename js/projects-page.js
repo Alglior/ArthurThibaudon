@@ -377,6 +377,25 @@ class ProjectsPageController {
 
         const detailLink = `project-detail.html?id=${encodeURIComponent(project.id)}`;
 
+        const projectTypeBadge = (() => {
+            const type = project.projectType === 'collaborative' ? 'collaborative' : 'solo';
+            const icon = type === 'collaborative' ? 'fa-users' : 'fa-user';
+            const label = type === 'collaborative' ? 'Collaboratif' : 'Solo';
+            return `
+                <span class="project-type-badge ${type}">
+                    <i class="fas ${icon}"></i>
+                    ${label}
+                </span>
+            `;
+        })();
+
+        const contributorsHTML = project.contributors ? `
+            <div class="contributors-list">
+                <i class="fas fa-users"></i>
+                ${project.contributors.map(c => `<span>${c}</span>`).join('')}
+            </div>
+        ` : '';
+
     return `
             <div class="project-card">
                 <a href="${detailLink}" class="project-link">
@@ -384,9 +403,13 @@ class ProjectsPageController {
                         <img src="${project.image}" alt="${project.title}" loading="lazy">
                     </div>
                     <div class="card-body">
-                        <h3>${project.title}</h3>
+                        <div class="card-header">
+                            ${projectTypeBadge}
+                            <h3>${project.title}</h3>
+                        </div>
                         <p class="project-period">${project.period}</p>
                         <p>${project.description}</p>
+                        ${contributorsHTML}
                         ${project.features ? `
                             <div class="project-features">
                                 ${featureTags}

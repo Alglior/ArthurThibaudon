@@ -110,6 +110,15 @@ class ProjectDetailController {
             ).join('');
         }
 
+        const contributorsEl = document.getElementById('project-contributors');
+        if (contributorsEl && this.project.contributors && this.project.contributors.length > 0) {
+            contributorsEl.style.display = 'block';
+            contributorsEl.querySelector('.contributors-list').innerHTML = 
+                this.project.contributors.map(name => `<span class="contributor-name">${name}</span>`).join(
+                    '<span class="contributor-separator">,</span>'
+                );
+        }
+
         const launchBtn = document.getElementById('project-launch-btn');
         if (launchBtn && this.project.link) {
             launchBtn.href = this.project.link;

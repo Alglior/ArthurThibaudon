@@ -79,7 +79,7 @@ class ProjectsManager {
         return false;
     }
 
-    /**
+      /**
      * Get featured projects (for homepage)
      * Limited to 3 projects maximum
      */
@@ -87,6 +87,13 @@ class ProjectsManager {
         return this.projects
             .filter(project => project.featured)
             .slice(0, 3); // Limit to 3 projects maximum
+    }
+
+    /**
+     * Get collaborative projects (team/academic group work)
+     */
+    getCollaborativeProjects() {
+        return this.projects.filter(project => project.projectType === 'collaborative');
     }
 
     /**

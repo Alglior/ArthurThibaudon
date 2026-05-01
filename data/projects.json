@@ -10,7 +10,22 @@
       "features": ["Atlas", "Visualisation Cartographique", "Données Géospatiales", "Multi-auteurs"],
       "period": "2025-2026",
       "category": "cartography",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
+    },
+    {
+      "id": "landmatrix-artxypro",
+      "title": "Land Matrix - Geodata Visualiser",
+      "description": "Application web complète pour visualiser et analyser les données géospatiales sur les investissements fonciers dans le monde. Construite avec Django API backend, frontend Vite et modules d'analyse.",
+      "image": "data/images/landmatrix.png",
+      "link": "https://landmatrix.artxypro.org",
+      "technologies": ["Django", "Vite", "Python", "JavaScript", "GeoJSON", "HTML/CSS"],
+      "features": ["Cartographie Interactive", "Analyse Spatiale", "Rapports PDF", "Export Excel/CSV", "Crawler de Données"],
+      "period": "2025-2026",
+      "category": "geospatial",
+      "featured": false,
+      "projectType": "collaborative",
+      "contributors": ["Boccardo Solene ", " Creur Tom ", " Herman Nicolas ", " Thibaudon Arthur ", " Valentin Paul"]
     },
     {
       "id": "storymap-crime-europe",
@@ -22,7 +37,8 @@
       "features": ["Analyse Temporelle", "Classification", "Couverture Européenne", "Interface Interactive"],
       "period": "2008-2022",
       "category": "storytelling",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
     },
     {
       "id": "interactive-crime-map",
@@ -34,7 +50,8 @@
       "features": ["Suivi Temporel", "Types de Crimes", "Filtres Dynamiques"],
       "period": "2008-2022",
       "category": "geospatial",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
     },
     {
       "id": "globe-3d-population-2004",
@@ -46,9 +63,10 @@
       "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
       "period": "2004",
       "category": "3d-visualization",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
     },
-        {
+    {
       "id": "globe-3d-population-2020",
       "title": "Globe 3D: Population 2020",
       "description": "Cartographie 3D de la population mondiale en 2020 avec navigation immersive et visualisation proportionnelle.",
@@ -58,9 +76,10 @@
       "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
       "period": "2020",
       "category": "3d-visualization",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
     },
-            {
+    {
       "id": "globe-3d-population-2023",
       "title": "Globe 3D: Population 2023",
       "description": "Cartographie 3D de la population mondiale en 2023 avec navigation immersive et visualisation proportionnelle.",
@@ -70,7 +89,8 @@
       "features": ["Visualisation 3D", "Couverture Mondiale", "Données Population"],
       "period": "2023",
       "category": "3d-visualization",
-      "featured": true
+      "featured": true,
+      "projectType": "solo"
     }
   ],
   "categories": [
@@ -106,7 +126,3 @@
     }
   ]
 }
-
-
-
-

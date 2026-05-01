@@ -14,6 +14,7 @@ class HomepageController {
     async init() {
         try {
             await this.projectsManager.loadData();
+            this.renderCollaborativeProjects();
             this.renderFeaturedProjects();
             this.setupEventListeners();
         } catch (error) {
@@ -93,9 +94,21 @@ class HomepageController {
     }
 
     /**
+     * Render collaborative projects
+     */
+    renderCollaborativeProjects() {
+        const grid = document.querySelector('#collaborative-grid');
+        if (!grid) return;
+
+        const collaborativeProjects = this.projectsManager.getCollaborativeProjects();
+        
+        grid.innerHTML = collaborativeProjects.map(project => this.createProjectCard(project, true)).join('');
+    }
+
+    /**
      * Create a project card HTML for homepage
      */
-    createProjectCard(project) {
+    createProjectCard(project, isCollaborative = false) {
         const techTags = project.technologies.map(tech => 
             `<span class="tech-tag">${tech}</span>`
         ).join('');
@@ -121,12 +134,22 @@ class HomepageController {
         }).join('');
 
         const detailLink = `project-detail.html?id=${encodeURIComponent(project.id)}`;
+        const collaborationBadge = isCollaborative ? '<span class="collaboration-badge"><i class="fas fa-users"></i> Collaboratif</span>' : '';
+        const contributorsSection = project.contributors && project.contributors.length > 0 ? `
+                <div class="contributors">
+                    <p class="contributors-label">Équipe :</p>
+                    <div class="contributors-list">
+                        ${project.contributors.map(name => `<span class="contributor-name">${name}</span>`).join('<span class="contributor-separator">,</span>')}
+                    </div>
+                </div>
+            ` : '';
 
         return `
             <div class="project-card">
                 <a href="${detailLink}" class="project-link">
                     <div class="project-image">
                         <img src="${project.image}" alt="${project.title}">
+                        ${collaborationBadge}
                         <div class="project-overlay">
                             <i class="fas fa-external-link-alt"></i>
                         </div>
@@ -136,6 +159,8 @@ class HomepageController {
                         <p class="project-period">${project.period}</p>
                         <p class="project-description">${project.description}</p>
                         
+                        ${contributorsSection}
+
                         <div class="project-features">
                             ${featureTags}
                         </div>

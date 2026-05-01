@@ -134,6 +134,10 @@
     .projects-section .card-image {
         height: 180px;
     }
+
+    .collaborative-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 1000px) {
@@ -145,5 +149,10 @@
 @media (max-width: 600px) {
     .projects-section .projects-grid {
         grid-template-columns: 1fr;
+    }
+
+    .collaboration-badge {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
     }
 }
