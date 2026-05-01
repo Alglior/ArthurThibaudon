@@ -1,6 +1,18 @@
 {
   "projects": [
     {
+      "id": "geovis-galaxy",
+      "title": "GeoVis Galaxy",
+      "description": "Mini atlas de visualisation cartographique. Plateforme dédiée à l'exploration et à la visualisation des données géospatiales, réalisée dans le cadre du Master de Géographie Numérique (M2) de Lyon 2 et de l'Université Jean Monnet.",
+      "image": "data/images/projet_image6.png",
+      "link": "https://geovis.arthurthibaudon.com/",
+      "technologies": ["Web Mapping", "Visualisation de Données", "Cartographie Interactive"],
+      "features": ["Atlas", "Visualisation Cartographique", "Données Géospatiales", "Multi-auteurs"],
+      "period": "2025-2026",
+      "category": "cartography",
+      "featured": true
+    },
+    {
       "id": "storymap-crime-europe",
       "title": "Storymap: Criminalité en Europe",
       "description": "StoryMap interactive des crimes en Europe (2008-2022) avec visualisations dynamiques et analyse temporelle.",
